@@ -1,12 +1,15 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { Settings, ImageAspectRatio } from '../types';
 
-if (!process.env.API_KEY || process.env.API_KEY === "ВАШ_API_КЛЮЧ_ЗДЕСЬ") {
-    throw new Error("API-ключ не настроен. Откройте файл index.html и замените плейсхолдер 'ВАШ_API_КЛЮЧ_ЗДЕСЬ' вашим ключом от Google AI Studio.");
-}
+const API_KEY_STORAGE_ITEM = 'google-api-key';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getAiClient = () => {
+    const apiKey = localStorage.getItem(API_KEY_STORAGE_ITEM);
+    if (!apiKey) {
+        throw new Error("API-ключ не найден. Пожалуйста, введите и сохраните ваш ключ на странице 'Настройки'.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {
     const metaPrompt = `
@@ -29,6 +32,7 @@ INSTRUCTIONS:
 `;
 
     try {
+        const ai = getAiClient();
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: metaPrompt,
@@ -36,7 +40,10 @@ INSTRUCTIONS:
         return response.text.trim();
     } catch (error) {
         console.error("Error enhancing prompt:", error);
-        throw new Error("Не удалось улучшить промпт. Проверьте консоль для получения подробной информации.");
+        if (error instanceof Error && error.message.includes('API key not valid')) {
+             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
+        }
+        throw new Error(`Не удалось улучшить промпт. ${error instanceof Error ? error.message : ''}`);
     }
 };
 
@@ -46,6 +53,7 @@ export const generateImages = async (
     aspectRatio: ImageAspectRatio
 ): Promise<string[]> => {
     try {
+        const ai = getAiClient();
         const response = await ai.models.generateImages({
             model: 'imagen-3.0-generate-002',
             prompt: prompt,
@@ -59,6 +67,9 @@ export const generateImages = async (
         return response.generatedImages.map(img => `data:image/jpeg;base64,${img.image.imageBytes}`);
     } catch (error) {
         console.error("Error generating images:", error);
-        throw new Error("Не удалось сгенерировать изображения. Проверьте консоль для получения подробной информации.");
+        if (error instanceof Error && error.message.includes('API key not valid')) {
+             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
+        }
+        throw new Error(`Не удалось сгенерировать изображения. ${error instanceof Error ? error.message : ''}`);
     }
 };
