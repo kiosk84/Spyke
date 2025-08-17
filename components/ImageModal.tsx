@@ -28,7 +28,7 @@ const ImageModal: React.FC<ImageModalProps> = ({ images, currentIndex, onClose, 
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = images[currentIndex];
-    link.download = `iskra_image_${currentIndex + 1}.jpeg`;
+    link.download = `expert_image_${currentIndex + 1}.jpeg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

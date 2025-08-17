@@ -1,14 +1,26 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import SettingsPanel from '../SettingsPanel';
 import PromptDisplay from '../PromptDisplay';
 import ImageGallery from '../ImageGallery';
 import Button from '../common/Button';
 import CameraIcon from '../icons/CameraIcon';
-import { Settings } from '../../types';
+import ApiKeyPrompt from '../common/ApiKeyPrompt';
+import { Settings, Page } from '../../types';
 import { enhancePrompt, generateImages } from '../../services/geminiService';
 import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT } from '../../constants';
 
-const GeneratorPage: React.FC = () => {
+interface GeneratorPageProps {
+  onNavigate: (page: Page) => void;
+}
+
+const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    const key = localStorage.getItem('google-api-key');
+    setHasApiKey(!!key);
+  }, []);
+
   const [settings, setSettings] = useState<Settings>({
     idea: '',
     style: ART_STYLES[0].value,
@@ -77,6 +89,14 @@ const GeneratorPage: React.FC = () => {
       setIsGenerating(false);
     }
   }, [enhancedPrompt, settings.imageCount, settings.aspectRatio]);
+
+  if (!hasApiKey) {
+    return (
+      <div className="flex-grow flex items-center justify-center">
+        <ApiKeyPrompt onNavigate={onNavigate} />
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -1,47 +1,8 @@
 import React, { useState } from 'react';
-import SparkleIcon from './icons/SparkleIcon';
 import CoinIcon from './icons/CoinIcon';
 import BurgerIcon from './icons/BurgerIcon';
 import CloseIcon from './icons/CloseIcon';
-import SettingsIcon from './icons/SettingsIcon';
 import { Page } from '../types';
-
-interface NavItemsProps {
-    activePage: Page;
-    onNavigate: (page: Page) => void;
-    onLinkClick?: () => void;
-}
-
-const NavItems: React.FC<NavItemsProps> = ({ activePage, onNavigate, onLinkClick }) => {
-    const navLinks: { page: Page; label: string }[] = [
-        { page: 'info', label: 'Информация' },
-        { page: 'history', label: 'История' },
-        { page: 'settings', label: 'Настройки' }
-    ];
-
-    const getLinkClasses = (page: Page) => 
-        `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-            activePage === page 
-            ? 'text-white bg-dark-tertiary' 
-            : 'text-light-secondary hover:text-white'
-        }`;
-
-    return (
-        <>
-            {navLinks.map(({ page, label }) => (
-                 <button key={page} onClick={() => { onNavigate(page); onLinkClick?.(); }} className={getLinkClasses(page)}>
-                    {label}
-                </button>
-            ))}
-            <div className="flex items-center gap-2 bg-dark-tertiary px-4 py-2 rounded-full text-sm font-semibold shadow-inner">
-                <CoinIcon className="w-5 h-5 text-yellow-400" />
-                <span className="text-white">100</span>
-                <span className="text-light-secondary">монет</span>
-            </div>
-        </>
-    );
-};
-
 
 interface HeaderProps {
     activePage: Page;
@@ -51,44 +12,104 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const navLinks: { page: Page; label: string }[] = [
+        { page: 'chat', label: 'Чат' },
+        { page: 'generator', label: 'Генератор' },
+        { page: 'info', label: 'Информация' },
+        { page: 'history', label: 'История' },
+        { page: 'settings', label: 'Настройки' }
+    ];
+
+    const getLinkClasses = (page: Page) =>
+        `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+            activePage === page
+            ? 'text-white bg-dark-tertiary'
+            : 'text-light-secondary hover:text-white hover:bg-dark-tertiary/50'
+        }`;
+
+    const CoinDisplay = () => (
+         <div className="flex items-center gap-2 bg-dark-tertiary px-4 py-2 rounded-full text-sm font-semibold shadow-inner">
+            <CoinIcon className="w-5 h-5 text-yellow-400" />
+            <span className="text-white">100</span>
+            <span className="text-light-secondary">монет</span>
+        </div>
+    );
+
     return (
-        <header className="py-4 border-b border-dark-tertiary/50 sticky top-0 z-20 bg-dark-primary/70 backdrop-blur-lg">
-            <div className="container mx-auto px-4 flex items-center justify-between">
-                <button onClick={() => onNavigate('generator')} className="flex items-center gap-3 group">
-                    <SparkleIcon className="w-8 h-8 text-brand-cyan group-hover:scale-110 transition-transform" />
-                    <div>
-                         <h1 className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta font-display">
-                            Искра
-                        </h1>
-                        <p className="text-xs text-light-secondary -mt-1 hidden sm:block">Генератор Промтов и Изображения</p>
+        <>
+            <header className="py-4 border-b border-dark-tertiary/50 sticky top-0 z-20 bg-dark-primary/70 backdrop-blur-lg">
+                <div className="container mx-auto px-4 flex items-center justify-between">
+                    {/* LEFT: Logo */}
+                    <button onClick={() => onNavigate('chat')} className="flex items-center group transition-transform hover:scale-105">
+                       <span className="text-2xl font-bold font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta">
+                         EXPERT
+                       </span>
+                    </button>
+
+                    {/* RIGHT: Desktop Nav */}
+                    <nav className="hidden md:flex items-center gap-2">
+                        {navLinks.map(({ page, label }) => (
+                            <button key={page} onClick={() => onNavigate(page)} className={getLinkClasses(page)}>
+                                {label}
+                            </button>
+                        ))}
+                        <CoinDisplay />
+                    </nav>
+
+                    {/* RIGHT: Mobile Burger Button */}
+                    <div className="md:hidden">
+                        <button
+                            onClick={() => setIsMenuOpen(true)}
+                            className="inline-flex items-center justify-center p-2 rounded-md text-light-secondary hover:text-white hover:bg-dark-tertiary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                            aria-controls="mobile-menu"
+                            aria-expanded={isMenuOpen}
+                        >
+                            <span className="sr-only">Открыть главное меню</span>
+                            <BurgerIcon className="block h-6 w-6" />
+                        </button>
                     </div>
-                </button>
+                </div>
+            </header>
 
-                <nav className="hidden md:flex items-center gap-2">
-                    <NavItems activePage={activePage} onNavigate={onNavigate} />
-                </nav>
+            {/* Mobile Side Menu */}
+            <div
+                className={`fixed inset-0 bg-black/60 z-30 transition-opacity duration-300 ease-in-out md:hidden ${isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                onClick={() => setIsMenuOpen(false)}
+                aria-hidden="true"
+            />
 
-                <div className="md:hidden">
+            <aside
+                className={`fixed top-0 right-0 h-full w-72 bg-dark-secondary shadow-lg z-40 transform transition-transform duration-300 ease-in-out md:hidden ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-menu-title"
+            >
+                <div className="p-4 flex justify-between items-center border-b border-dark-tertiary">
+                    <h2 id="mobile-menu-title" className="font-display text-xl text-white">Меню</h2>
                     <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="inline-flex items-center justify-center p-2 rounded-md text-light-secondary hover:text-white hover:bg-dark-tertiary focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                        aria-controls="mobile-menu"
-                        aria-expanded={isMenuOpen}
+                        onClick={() => setIsMenuOpen(false)}
+                         className="p-1 rounded-md text-light-secondary hover:text-white hover:bg-dark-tertiary focus:outline-none focus:ring-2 focus:ring-white"
                     >
-                        <span className="sr-only">Открыть главное меню</span>
-                        {isMenuOpen ? <CloseIcon className="block h-6 w-6" /> : <BurgerIcon className="block h-6 w-6" />}
+                        <span className="sr-only">Закрыть меню</span>
+                        <CloseIcon className="h-6 w-6" />
                     </button>
                 </div>
-            </div>
-
-            {isMenuOpen && (
-                <div className="md:hidden" id="mobile-menu">
-                    <nav className="px-2 pt-4 pb-3 space-y-3 flex flex-col items-center">
-                        <NavItems activePage={activePage} onNavigate={onNavigate} onLinkClick={() => setIsMenuOpen(false)}/>
-                    </nav>
-                </div>
-            )}
-        </header>
+                <nav className="p-4 flex flex-col gap-2">
+                     {navLinks.map(({ page, label }) => (
+                        <button
+                            key={page}
+                            onClick={() => { onNavigate(page); setIsMenuOpen(false); }}
+                            className={`w-full text-left ${getLinkClasses(page)}`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                    <div className="pt-4 mt-2 border-t border-dark-tertiary/50 flex justify-center">
+                        <CoinDisplay />
+                    </div>
+                </nav>
+            </aside>
+        </>
     );
 };
 

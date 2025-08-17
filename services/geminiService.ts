@@ -1,10 +1,13 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 import { Settings, ImageAspectRatio } from '../types';
 
 const API_KEY_STORAGE_ITEM = 'google-api-key';
 
+let chat: Chat | null = null; // Module-level chat instance
+
 const getAiClient = () => {
     const apiKey = localStorage.getItem(API_KEY_STORAGE_ITEM);
+
     if (!apiKey) {
         throw new Error("API-ключ не найден. Пожалуйста, введите и сохраните ваш ключ на странице 'Настройки'.");
     }
@@ -71,5 +74,27 @@ export const generateImages = async (
              throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
         }
         throw new Error(`Не удалось сгенерировать изображения. ${error instanceof Error ? error.message : ''}`);
+    }
+};
+
+export const sendMessageToChat = async (message: string): Promise<string> => {
+    try {
+        const ai = getAiClient();
+        if (!chat) {
+            chat = ai.chats.create({
+                model: 'gemini-2.5-flash',
+                config: {
+                    systemInstruction: 'Ты — «EXPERT», полезный и дружелюбный AI-ассистент, специализирующийся на творчестве, генерации идей и помощи с промптами для изображений.',
+                },
+            });
+        }
+        const response = await chat.sendMessage({ message });
+        return response.text.trim();
+    } catch (error) {
+        console.error("Error sending message to chat:", error);
+        if (error instanceof Error && error.message.includes('API key not valid')) {
+             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
+        }
+        throw new Error(`Не удалось отправить сообщение. ${error instanceof Error ? error.message : ''}`);
     }
 };

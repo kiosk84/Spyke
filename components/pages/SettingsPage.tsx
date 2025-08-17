@@ -31,7 +31,7 @@ const SettingsPage: React.FC = () => {
             Google AI API Key
           </label>
           <p className="text-sm text-light-secondary mb-3">
-            Введите ваш API ключ от Google AI Studio. Ключ будет сохранен в локальном хранилище вашего браузера и не будет передаваться никуда, кроме API Google.
+            Введите ваш API ключ от Google AI Studio. Ключ будет сохранен в локальном хранилище вашего браузера и никогда не покинет ваше устройство.
           </p>
           <div className="flex items-center gap-4">
              <input

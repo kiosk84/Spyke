@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-T" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Генератор Промтов и Изображения «Искра»</title>
+    <title>EXPERT - Генератор Промтов и Изображений</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -32,29 +32,51 @@
             },
             animation: {
               'fade-in': 'fadeIn 0.3s ease-out',
+              'pulse-glow': 'pulseGlow 2.5s infinite ease-in-out',
             },
             keyframes: {
               fadeIn: {
                 '0%': { opacity: 0, transform: 'scale(0.95)' },
                 '100%': { opacity: 1, transform: 'scale(1)' },
               },
+              pulseGlow: {
+                '0%, 100%': { 
+                  transform: 'scale(1)',
+                  filter: 'drop-shadow(0 0 8px rgba(0, 191, 255, 0.5)) drop-shadow(0 0 15px rgba(255, 0, 255, 0.3))'
+                },
+                '50%': { 
+                  transform: 'scale(1.1)',
+                  filter: 'drop-shadow(0 0 20px rgba(0, 191, 255, 0.9)) drop-shadow(0 0 35px rgba(255, 0, 255, 0.5))'
+                }
+              }
             }
           }
         }
       }
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^18.2.0/",
-    "@google/genai": "https://cdn.jsdelivr.net/npm/@google/genai/dist/index.mjs",
-    "react/": "https://esm.sh/react@^18.2.0/",
-    "react": "https://esm.sh/react@^18.2.0"
-  }
-}
-</script>
-</head>
-  <body class="bg-dark-primary text-light-primary antialiased font-sans">
+    <style>
+      body {
+        overscroll-behavior-y: none; /* Предотвращает обновление страницы потягиванием вниз на мобильных устройствах */
+        
+        /* Градиент для эффекта космического свечения */
+        background-color: #111827; /* dark-primary в качестве запасного варианта */
+        background-image: radial-gradient(ellipse at 50% 30%, rgba(0, 191, 255, 0.15) 0%, transparent 70%);
+        
+        min-height: 100vh;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "react-dom/": "https://esm.sh/react-dom@^18.2.0/",
+          "@google/genai": "https://cdn.jsdelivr.net/npm/@google/genai/dist/index.mjs",
+          "react/": "https://esm.sh/react@^18.2.0/",
+          "react": "https://esm.sh/react@^18.2.0"
+        }
+      }
+    </script>
+  </head>
+  <body class="text-light-primary antialiased font-sans">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

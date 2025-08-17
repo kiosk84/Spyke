@@ -17,4 +17,4 @@ export interface SelectOption {
   label: string;
 }
 
-export type Page = 'generator' | 'info' | 'history' | 'settings';
+export type Page = 'generator' | 'info' | 'history' | 'settings' | 'chat';

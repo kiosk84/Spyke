@@ -1,14 +1,25 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GeneratorPage from './components/pages/GeneratorPage';
 import InfoPage from './components/pages/InfoPage';
 import HistoryPage from './components/pages/HistoryPage';
 import SettingsPage from './components/pages/SettingsPage';
+import ChatPage from './components/pages/ChatPage';
+import SplashScreen from './components/SplashScreen';
+import ParticleBackground from './components/common/ParticleBackground';
 import { Page } from './types';
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<Page>('generator');
+  const [isAppLoading, setIsAppLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState<Page>('chat');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 1800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleNavigate = useCallback((page: Page) => {
     setCurrentPage(page);
@@ -16,6 +27,8 @@ const App: React.FC = () => {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'chat':
+        return <ChatPage onNavigate={handleNavigate} />;
       case 'info':
         return <InfoPage />;
       case 'history':
@@ -23,19 +36,29 @@ const App: React.FC = () => {
       case 'settings':
         return <SettingsPage />;
       case 'generator':
+        return <GeneratorPage onNavigate={handleNavigate} />;
       default:
-        return <GeneratorPage />;
+        return <ChatPage onNavigate={handleNavigate} />;
     }
   };
 
+  if (isAppLoading) {
+    return <SplashScreen />;
+  }
+  
+  const isChatPage = currentPage === 'chat';
+
   return (
-    <div className="min-h-screen bg-dark-primary flex flex-col">
-      <Header activePage={currentPage} onNavigate={handleNavigate} />
-      <main className="container mx-auto px-4 py-8 flex-grow">
-        {renderPage()}
-      </main>
-      <Footer />
-    </div>
+    <>
+      {isChatPage && <ParticleBackground />}
+      <div className={`min-h-screen flex flex-col relative ${isChatPage ? 'h-screen overflow-hidden' : ''}`}>
+        <Header activePage={currentPage} onNavigate={handleNavigate} />
+        <main className={`flex-grow flex flex-col ${isChatPage ? 'h-full' : 'container mx-auto px-4 py-8'}`}>
+          {renderPage()}
+        </main>
+        {!isChatPage && <Footer />}
+      </div>
+    </>
   );
 };
 
