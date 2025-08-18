@@ -35,9 +35,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
         setIsProviderConfigured(checkProviderConfig());
     };
     updateConfigStatus();
-    // Re-check when window gets focus, in case user updated settings in another tab
     window.addEventListener('focus', updateConfigStatus);
-    // Also re-check when storage changes, e.g. settings saved in another tab
     window.addEventListener('storage', updateConfigStatus);
     
     return () => {
@@ -55,7 +53,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     if (textarea) {
       textarea.style.height = 'auto';
       const scrollHeight = textarea.scrollHeight;
-      const maxHeight = 200; // Ограничение высоты ~5 строк
+      const maxHeight = 200;
       textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
       textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
@@ -103,15 +101,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
   const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
     const isUser = message.role === 'user';
     const Icon = isUser ? UserIcon : RobotIcon;
-    const iconClasses = isUser ? 'text-light-primary' : 'text-brand-cyan';
     
     return (
-        <div className={`flex items-start gap-3 w-full max-w-3xl mx-auto ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-            <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isUser ? 'bg-brand-magenta/80' : 'bg-dark-tertiary'}`}>
-                <Icon className={`w-6 h-6 ${iconClasses}`} />
+        <div className={`flex items-start gap-4 w-full max-w-3xl mx-auto ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${isUser ? 'bg-gradient-to-br from-brand-cyan to-brand-magenta' : 'bg-dark-tertiary'}`}>
+                <Icon className={`w-5 h-5 ${isUser ? 'text-white' : 'text-brand-cyan'}`} />
             </div>
-            <div className={`px-5 py-3 rounded-2xl ${isUser ? 'bg-brand-cyan/20' : 'bg-dark-secondary'}`}>
-                <p className="text-light-primary whitespace-pre-wrap">{message.text}</p>
+            <div className={`p-4 rounded-2xl ${isUser ? 'bg-gradient-to-tr from-brand-cyan/25 to-brand-magenta/25' : 'bg-dark-secondary border border-dark-tertiary/60'}`}>
+                <p className="text-light-primary whitespace-pre-wrap leading-relaxed">{message.text}</p>
             </div>
         </div>
     );
@@ -121,7 +118,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     return (
       <div className="max-w-3xl mx-auto">
         {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-3 rounded-lg text-center text-sm mb-3">{error}</div>}
-        <form onSubmit={handleSendMessage} className="relative flex items-end gap-2 p-3 rounded-2xl bg-dark-secondary/80 backdrop-blur-xl border border-dark-tertiary/50 focus-within:border-brand-cyan transition-colors shadow-2xl shadow-black/50">
+        <form onSubmit={handleSendMessage} className="relative flex items-end gap-2 p-3 rounded-2xl bg-dark-secondary border border-dark-tertiary/50 focus-within:ring-2 focus-within:ring-brand-cyan/80 focus-within:border-transparent transition-all shadow-lg shadow-black/30">
             <button
                 type="button"
                 className="grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-colors duration-200 text-gray-400 hover:bg-dark-tertiary disabled:opacity-50"
@@ -161,12 +158,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">
       <div className="flex-grow overflow-y-auto p-4 pb-64 flex flex-col">
         {messages.length === 0 && !isLoading ? (
-            <div className="m-auto text-center p-4">
-               <h1 className="text-5xl font-black font-display tracking-wider text-light-primary">
-                  Добро пожаловать!
+            <div className="m-auto text-center p-8 bg-dark-secondary/30 border border-dark-tertiary/50 rounded-2xl">
+               <RobotIcon className="w-16 h-16 text-brand-cyan mx-auto mb-6" />
+               <h1 className="text-4xl font-bold font-display tracking-wider text-light-primary">
+                  AI EXPERT
                </h1>
-               <p className="text-light-secondary text-lg mt-4">
-                  Я-&laquo; AI EXPERT&raquo; Чем я могу Вам помочь?
+               <p className="text-light-secondary text-lg mt-3">
+                  Чем я могу вам помочь сегодня?
                </p>
             </div>
         ) : (
@@ -175,14 +173,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
               <MessageBubble key={index} message={msg} />
             ))}
             {isLoading && (
-              <div className="flex items-start gap-3 w-full max-w-3xl mx-auto flex-row">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-dark-tertiary">
-                    <RobotIcon className="w-6 h-6 text-brand-cyan" />
+              <div className="flex items-start gap-4 w-full max-w-3xl mx-auto flex-row">
+                <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-dark-tertiary">
+                    <RobotIcon className="w-5 h-5 text-brand-cyan" />
                 </div>
-                <div className="px-5 py-3 rounded-2xl bg-dark-secondary flex items-center space-x-2">
-                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce"></div>
+                <div className="p-4 rounded-2xl bg-dark-secondary border border-dark-tertiary/60 flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-brand-cyan/70 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-brand-cyan/70 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-brand-cyan/70 rounded-full animate-bounce"></div>
                 </div>
               </div>
             )}

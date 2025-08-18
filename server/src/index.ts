@@ -1,5 +1,5 @@
 
-import express, { Request, Response } from 'express';
+import * as express from 'express';
 import cors from 'cors';
 import fetch, { Response as FetchResponse } from 'node-fetch';
 
@@ -19,7 +19,7 @@ interface OllamaProxyParams {
     endpoint: string;
 }
 
-const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaProxyRequestBody>, res: Response) => {
+const ollamaProxyHandler = async (req: express.Request<OllamaProxyParams, any, OllamaProxyRequestBody>, res: express.Response) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;
 
