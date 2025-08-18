@@ -39,8 +39,9 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
             }
         } catch (error) {
             console.error('Proxy check connection error:', error);
-            // This case happens on network errors (e.g. server not running, firewall)
-            return res.status(500).json({ success: false, error: 'Не удалось подключиться к серверу Ollama.' });
+            const message = error instanceof Error ? error.message : String(error);
+            // Provide a more detailed error message
+            return res.status(500).json({ success: false, error: `Прокси-сервер не смог подключиться к Ollama по адресу ${ollamaUrl}. Убедитесь, что он запущен. Ошибка: ${message}` });
         }
     }
 
@@ -74,8 +75,8 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
     } catch (error) {
         console.error('Proxy request error:', error);
         const message = error instanceof Error ? error.message : String(error);
-        // This might happen on network issues
-        res.status(500).json({ error: `Не удалось выполнить запрос к серверу Ollama через прокси: ${message}` });
+        // Provide a more detailed error message for connection failures
+        res.status(500).json({ error: `Прокси-сервер не смог подключиться к вашему серверу Ollama по адресу ${ollamaUrl}. Убедитесь, что Ollama запущен и доступен. Ошибка: ${message}` });
     }
 };
 

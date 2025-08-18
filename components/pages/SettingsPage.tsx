@@ -5,16 +5,30 @@ import CheckIcon from '../icons/CheckIcon';
 import { AiProvider } from '../../types';
 import { AI_PROVIDER_STORAGE_ITEM } from '../../services/aiService';
 import { API_KEY_STORAGE_ITEM } from '../../services/geminiService';
+import { OLLAMA_URL_STORAGE_ITEM, OLLAMA_MODEL_STORAGE_ITEM } from '../../services/ollamaService';
 
 
 const SettingsPage: React.FC = () => {
+  // Google State
   const [apiKey, setApiKey] = useState('');
-  const [aiProvider, setAiProvider] = useState<AiProvider>('google');
+
+  // Ollama State
+  const [ollamaUrl, setOllamaUrl] = useState('');
+  const [ollamaModel, setOllamaModel] = useState('');
+  
+  // General State
+  const [aiProvider, setAiProvider] = useState<AiProvider>('ollama');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
 
   useEffect(() => {
+    // Load Google settings
     setApiKey(localStorage.getItem(API_KEY_STORAGE_ITEM) || '');
     
+    // Load Ollama settings with user-provided defaults
+    setOllamaUrl(localStorage.getItem(OLLAMA_URL_STORAGE_ITEM) || 'http://192.168.0.105:11434');
+    setOllamaModel(localStorage.getItem(OLLAMA_MODEL_STORAGE_ITEM) || 'gemma3n');
+
+    // Load provider
     const savedProvider = localStorage.getItem(AI_PROVIDER_STORAGE_ITEM) as AiProvider;
     if (savedProvider) {
       setAiProvider(savedProvider);
@@ -22,9 +36,16 @@ const SettingsPage: React.FC = () => {
   }, []);
   
   const handleSaveSettings = () => {
-    localStorage.setItem(API_KEY_STORAGE_ITEM, apiKey);
+    // Save settings based on the active provider
+    if (aiProvider === 'google') {
+        localStorage.setItem(API_KEY_STORAGE_ITEM, apiKey);
+    } else { // Ollama
+        const cleanedUrl = ollamaUrl.trim().replace(/\/$/, ''); // Remove trailing slashes
+        localStorage.setItem(OLLAMA_URL_STORAGE_ITEM, cleanedUrl);
+        localStorage.setItem(OLLAMA_MODEL_STORAGE_ITEM, ollamaModel.trim());
+    }
     
-    // Trigger storage event for other tabs
+    // Trigger storage event for other tabs to update their state
     window.dispatchEvent(new Event('storage'));
 
     setSaveStatus('saved');
@@ -35,6 +56,7 @@ const SettingsPage: React.FC = () => {
     setAiProvider(provider);
     localStorage.setItem(AI_PROVIDER_STORAGE_ITEM, provider);
     window.dispatchEvent(new Event('storage'));
+    setSaveStatus('idle'); // Reset save status on provider change
   }
 
   return (
@@ -92,19 +114,50 @@ const SettingsPage: React.FC = () => {
         )}
 
         {aiProvider === 'ollama' && (
-            <div className="animate-fade-in space-y-4 p-4 bg-dark-tertiary rounded-lg border border-brand-cyan/20">
-              <h3 className="font-bold text-white">Ollama (Локально) Настроено</h3>
-              <p className="text-sm text-light-secondary">
-                  Приложение предварительно настроено для подключения к вашему локальному серверу Ollama через специальный онлайн-мост.
-              </p>
-              <ul className="list-disc list-inside text-xs text-light-secondary space-y-1 pl-2">
-                  <li>Убедитесь, что ваш <strong className="text-white">сервер Ollama</strong> запущен на вашем ПК.</li>
-                  <li>Убедитесь, что <strong className="text-white">API-мост</strong> из папки <code>server</code> также запущен.</li>
-                  <li>Приложение будет использовать модель по умолчанию (например, <code>llama3</code>) с вашего сервера.</li>
-              </ul>
-              <p className="text-xs text-light-secondary pt-2">
-                  Никаких дополнительных настроек в приложении не требуется.
-              </p>
+             <div className="animate-fade-in space-y-6">
+                <div>
+                    <h3 className="text-lg font-medium text-light-primary mb-3">Настройка Ollama</h3>
+                    <div className="space-y-3 p-4 bg-dark-tertiary rounded-lg border border-brand-cyan/20">
+                        <p className="text-sm text-light-secondary">
+                            Приложение использует онлайн-мост для связи с вашим локальным сервером Ollama. Укажите адрес вашего сервера и имя модели.
+                        </p>
+                        <ul className="list-disc list-inside text-xs text-light-secondary space-y-1 pl-2">
+                            <li>Убедитесь, что ваш <strong className="text-white">сервер Ollama</strong> запущен.</li>
+                            <li>Убедитесь, что <strong className="text-white">API-мост</strong> (`server`) и туннель `ngrok` запущены.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <label htmlFor="ollama-url" className="block text-sm font-medium text-light-primary mb-2">
+                      URL вашего сервера Ollama
+                    </label>
+                    <input
+                        id="ollama-url"
+                        type="text"
+                        value={ollamaUrl}
+                        onChange={(e) => { setOllamaUrl(e.target.value); setSaveStatus('idle'); }}
+                        placeholder="http://192.168.0.105:11434"
+                        className="w-full bg-dark-tertiary border border-gray-600 text-light-primary rounded-lg focus:ring-brand-cyan focus:border-brand-cyan block p-2.5 transition duration-200"
+                    />
+                    <p className="mt-2 text-xs text-light-secondary/80">
+                      Укажите базовый URL, например: <code>http://192.168.0.105:11434</code>. Не добавляйте <code>/api/...</code> в конец.
+                    </p>
+                </div>
+
+                <div>
+                    <label htmlFor="ollama-model" className="block text-sm font-medium text-light-primary mb-2">
+                      Имя модели
+                    </label>
+                    <input
+                        id="ollama-model"
+                        type="text"
+                        value={ollamaModel}
+                        onChange={(e) => { setOllamaModel(e.target.value); setSaveStatus('idle'); }}
+                        placeholder="gemma3n"
+                        className="w-full bg-dark-tertiary border border-gray-600 text-light-primary rounded-lg focus:ring-brand-cyan focus:border-brand-cyan block p-2.5 transition duration-200"
+                    />
+                </div>
             </div>
         )}
 
@@ -112,7 +165,6 @@ const SettingsPage: React.FC = () => {
            <Button
                 onClick={handleSaveSettings}
                 className="w-full"
-                disabled={aiProvider === 'ollama'}
             >
                 {saveStatus === 'saved' ? (
                     <>

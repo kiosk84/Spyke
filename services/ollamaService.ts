@@ -12,14 +12,17 @@ const getProxyUrl = (): string => {
 }
 
 const getOllamaConfig = () => {
-    // Используем значения по умолчанию, так как пользователь больше не настраивает их в UI.
-    const url = localStorage.getItem(OLLAMA_URL_STORAGE_ITEM) || 'http://127.0.0.1:11434';
-    const model = localStorage.getItem(OLLAMA_MODEL_STORAGE_ITEM) || 'llama3';
+    // Получает конфигурацию Ollama из localStorage или использует значения по умолчанию.
+    const url = localStorage.getItem(OLLAMA_URL_STORAGE_ITEM) || 'http://192.168.0.105:11434';
+    const model = localStorage.getItem(OLLAMA_MODEL_STORAGE_ITEM) || 'gemma3n';
     return { url, model };
 };
 
 export const isConfigured = (): boolean => {
-    // Конфигурация Ollama больше не зависит от пользовательского ввода, считаем ее всегда "настроенной", если выбрана.
+    // По требованию пользователя, считаем Ollama настроенным по умолчанию.
+    // Это предполагает, что локальный сервер, API-мост и туннель запущены.
+    // Функции этого сервиса будут использовать конфигурацию из localStorage или
+    // значения по умолчанию, если ничего не сохранено.
     return true;
 };
 

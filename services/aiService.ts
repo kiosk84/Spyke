@@ -5,7 +5,7 @@ import * as ollamaService from './ollamaService';
 export const AI_PROVIDER_STORAGE_ITEM = 'ai-provider';
 
 const getAiProvider = (): AiProvider => {
-  return (localStorage.getItem(AI_PROVIDER_STORAGE_ITEM) as AiProvider) || 'google';
+  return (localStorage.getItem(AI_PROVIDER_STORAGE_ITEM) as AiProvider) || 'ollama';
 };
 
 export const isProviderConfigured = (): boolean => {
