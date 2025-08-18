@@ -108,7 +108,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
                 <Icon className={`w-5 h-5 ${isUser ? 'text-white' : 'text-brand-cyan'}`} />
             </div>
             <div className={`p-4 rounded-2xl ${isUser ? 'bg-gradient-to-tr from-brand-cyan/25 to-brand-magenta/25' : 'bg-dark-secondary border border-dark-tertiary/60'}`}>
-                <p className="text-light-primary whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                <p className="text-light-primary/95 whitespace-pre-wrap leading-relaxed">{message.text}</p>
             </div>
         </div>
     );
@@ -158,14 +158,13 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">
       <div className="flex-grow overflow-y-auto p-4 pb-64 flex flex-col">
         {messages.length === 0 && !isLoading ? (
-            <div className="m-auto text-center p-8 bg-dark-secondary/30 border border-dark-tertiary/50 rounded-2xl">
-               <RobotIcon className="w-16 h-16 text-brand-cyan mx-auto mb-6" />
-               <h1 className="text-4xl font-bold font-display tracking-wider text-light-primary">
-                  AI EXPERT
-               </h1>
-               <p className="text-light-secondary text-lg mt-3">
-                  Чем я могу вам помочь сегодня?
-               </p>
+            <div className="flex items-start gap-4 w-full max-w-3xl mx-auto flex-row mt-4">
+                <div className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center bg-dark-tertiary">
+                    <RobotIcon className="w-5 h-5 text-brand-cyan" />
+                </div>
+                <div className="p-4 rounded-2xl bg-dark-secondary border border-dark-tertiary/60">
+                    <p className="text-light-primary/95 whitespace-pre-wrap leading-relaxed">Добро пожаловать! Я — «AI EXPERT». Чем я могу вам помочь сегодня?</p>
+                </div>
             </div>
         ) : (
           <div className="space-y-6">
