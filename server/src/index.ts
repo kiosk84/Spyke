@@ -1,4 +1,3 @@
-
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import fetch, { Response as FetchResponse } from 'node-fetch';
@@ -12,6 +11,7 @@ app.use(express.json());
 interface OllamaProxyRequestBody {
     ollamaUrl: string;
     ollamaModel: string;
+    stream?: boolean;
     [key: string]: any; // for other properties like 'messages' or 'prompt'
 }
 
@@ -31,7 +31,6 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
     if (endpoint === 'check') {
          try {
             const response: FetchResponse = await fetch(ollamaUrl);
-            // Ollama root returns a simple text response "Ollama is running"
             if (response.ok) {
                 return res.json({ success: true, message: 'Ollama is running' });
             } else {
@@ -40,12 +39,10 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
         } catch (error) {
             console.error('Proxy check connection error:', error);
             const message = error instanceof Error ? error.message : String(error);
-            // Provide a more detailed error message
             return res.status(500).json({ success: false, error: `Прокси-сервер не смог подключиться к Ollama по адресу ${ollamaUrl}. Убедитесь, что он запущен. Ошибка: ${message}` });
         }
     }
 
-    // For 'chat' and 'generate'
     const targetUrl = `${ollamaUrl}/api/${endpoint}`;
     const requestBody = {
         model: ollamaModel,
@@ -53,29 +50,33 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
     };
     
     try {
-        const response: FetchResponse = await fetch(targetUrl, {
+        const ollamaResponse: FetchResponse = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody)
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
+        if (!ollamaResponse.ok) {
+            const errorText = await ollamaResponse.text();
             try {
                 const errorJson = JSON.parse(errorText);
-                return res.status(response.status).json({ error: errorJson.error || 'Ошибка ответа от Ollama' });
+                return res.status(ollamaResponse.status).json({ error: errorJson.error || 'Ошибка ответа от Ollama' });
             } catch (e) {
-                return res.status(response.status).json({ error: `Ошибка ответа от Ollama (не JSON): ${errorText}` });
+                return res.status(ollamaResponse.status).json({ error: `Ошибка ответа от Ollama (не JSON): ${errorText}` });
             }
         }
         
-        const data: any = await response.json();
-        return res.json(data);
+        if (requestBody.stream && ollamaResponse.body) {
+            res.setHeader('Content-Type', ollamaResponse.headers.get('content-type') || 'application/x-ndjson');
+            ollamaResponse.body.pipe(res);
+        } else {
+            const data: any = await ollamaResponse.json();
+            return res.json(data);
+        }
 
     } catch (error) {
         console.error('Proxy request error:', error);
         const message = error instanceof Error ? error.message : String(error);
-        // Provide a more detailed error message for connection failures
         res.status(500).json({ error: `Прокси-сервер не смог подключиться к вашему серверу Ollama по адресу ${ollamaUrl}. Убедитесь, что Ollama запущен и доступен. Ошибка: ${message}` });
     }
 };

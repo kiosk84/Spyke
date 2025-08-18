@@ -1,4 +1,3 @@
-
 import { Settings } from '../types';
 import { CHAT_SYSTEM_PROMPT } from '../constants';
 
@@ -52,24 +51,61 @@ const proxyFetch = async (endpoint: string, body: object, customOllamaUrl?: stri
     }
 }
 
+export const sendMessageToChatStream = async (message: string, onChunk: (chunk: string) => void): Promise<void> => {
+    const { url, model } = getOllamaConfig();
+    const proxyBaseUrl = getProxyUrl();
 
-export const checkConnection = async (urlToCheck: string): Promise<boolean> => {
     try {
-        const data = await proxyFetch('check', {}, urlToCheck);
-        return data.success;
-    } catch (error) {
-        console.error("Ollama connection check failed via proxy:", error);
-        return false;
-    }
-};
+        const response = await fetch(`${proxyBaseUrl}/api/ollama/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ollamaUrl: url,
+                ollamaModel: model,
+                messages: [{ role: 'user', content: message }],
+                system: CHAT_SYSTEM_PROMPT,
+                stream: true,
+            }),
+        });
 
-export const sendMessageToChat = async (message: string): Promise<string> => {
-    const data = await proxyFetch('chat', {
-        messages: [{ role: 'user', content: message }],
-        system: CHAT_SYSTEM_PROMPT,
-        stream: false,
-    });
-    return data.message?.content?.trim() || 'Не удалось получить ответ от модели.';
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Ошибка прокси-сервера: ${response.statusText}`);
+        }
+        
+        if (!response.body) {
+            throw new Error('Response body is null');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || ''; // Keep the last, potentially incomplete line
+
+            for (const line of lines) {
+                if (line.trim() === '') continue;
+                try {
+                    const parsed = JSON.parse(line);
+                    if (parsed.message?.content) {
+                        onChunk(parsed.message.content);
+                    }
+                } catch (e) {
+                    console.error('Failed to parse stream chunk:', line, e);
+                }
+            }
+        }
+
+    } catch (error) {
+        console.error(`Error fetching from proxy stream for chat:`, error);
+        throw new Error(`Не удалось подключиться к API-мосту. Убедитесь, что ваш туннель (ngrok) и локальный сервер запущены. ${error instanceof Error ? error.message : ''}`);
+    }
 };
 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {

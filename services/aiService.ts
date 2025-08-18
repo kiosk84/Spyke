@@ -24,12 +24,15 @@ export const enhancePrompt = (settings: Omit<Settings, 'imageCount' | 'aspectRat
   return geminiService.enhancePrompt(settings);
 };
 
-export const sendMessageToChat = (message: string): Promise<string> => {
+export const sendMessageToChatStream = (
+  message: string,
+  onChunk: (chunk: string) => void
+): Promise<void> => {
   const provider = getAiProvider();
   if (provider === 'ollama') {
-    return ollamaService.sendMessageToChat(message);
+    return ollamaService.sendMessageToChatStream(message, onChunk);
   }
-  return geminiService.sendMessageToChat(message);
+  return geminiService.sendMessageToChatStream(message, onChunk);
 };
 
 // Генерация изображений эксклюзивна для модели Google Imagen в этом приложении

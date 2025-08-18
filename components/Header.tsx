@@ -37,12 +37,12 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
 
     return (
         <>
-            <header className="py-4 border-b border-dark-tertiary/50 sticky top-0 z-20 bg-dark-primary/70 backdrop-blur-lg">
+            <header className="py-3 border-b border-dark-tertiary/50 sticky top-0 z-20 bg-dark-primary/70 backdrop-blur-lg">
                 <div className="container mx-auto px-4 flex items-center justify-between">
                     {/* LEFT: Logo */}
                     <button onClick={() => onNavigate('chat')} className="flex items-center group transition-transform hover:scale-105">
-                       <span className="text-2xl font-bold font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta">
-                         EXPERT
+                       <span className="text-xl font-bold font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta">
+                         AI EXPERT
                        </span>
                     </button>
 

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Settings, ImageAspectRatio } from '../types';
 import { CHAT_SYSTEM_PROMPT } from "../constants";
@@ -83,7 +82,10 @@ export const generateImages = async (
     }
 };
 
-export const sendMessageToChat = async (message: string): Promise<string> => {
+export const sendMessageToChatStream = async (
+    message: string,
+    onChunk: (chunk: string) => void
+): Promise<void> => {
     try {
         const ai = getAiClient();
         if (!chat) {
@@ -94,10 +96,12 @@ export const sendMessageToChat = async (message: string): Promise<string> => {
                 },
             });
         }
-        const response = await chat.sendMessage({ message });
-        return response.text.trim();
+        const responseStream = await chat.sendMessageStream({ message });
+        for await (const chunk of responseStream) {
+            onChunk(chunk.text);
+        }
     } catch (error) {
-        console.error("Error sending message to chat:", error);
+        console.error("Error sending message to chat stream:", error);
         if (error instanceof Error && error.message.includes('API key not valid')) {
              throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
         }
