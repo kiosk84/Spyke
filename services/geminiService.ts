@@ -1,9 +1,15 @@
+
 import { GoogleGenAI, Chat } from "@google/genai";
 import { Settings, ImageAspectRatio } from '../types';
+import { CHAT_SYSTEM_PROMPT } from "../constants";
 
-const API_KEY_STORAGE_ITEM = 'google-api-key';
+export const API_KEY_STORAGE_ITEM = 'google-api-key';
 
 let chat: Chat | null = null; // Module-level chat instance
+
+export const isConfigured = (): boolean => {
+    return !!localStorage.getItem(API_KEY_STORAGE_ITEM);
+};
 
 const getAiClient = () => {
     const apiKey = localStorage.getItem(API_KEY_STORAGE_ITEM);
@@ -84,7 +90,7 @@ export const sendMessageToChat = async (message: string): Promise<string> => {
             chat = ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {
-                    systemInstruction: 'Ты — «EXPERT», полезный и дружелюбный AI-ассистент, специализирующийся на творчестве, генерации идей и помощи с промптами для изображений.',
+                    systemInstruction: CHAT_SYSTEM_PROMPT,
                 },
             });
         }

@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import CameraIcon from '../icons/CameraIcon';
 import ApiKeyPrompt from '../common/ApiKeyPrompt';
 import { Settings, Page } from '../../types';
-import { enhancePrompt, generateImages } from '../../services/geminiService';
+import { enhancePrompt, generateImages, isProviderConfigured as checkProviderConfig } from '../../services/aiService';
 import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT } from '../../constants';
 
 interface GeneratorPageProps {
@@ -14,11 +14,22 @@ interface GeneratorPageProps {
 }
 
 const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [isProviderConfigured, setIsProviderConfigured] = useState(false);
 
   useEffect(() => {
-    const key = localStorage.getItem('google-api-key');
-    setHasApiKey(!!key);
+    const updateConfigStatus = () => {
+        setIsProviderConfigured(checkProviderConfig());
+    };
+    updateConfigStatus();
+    // Re-check when window gets focus, in case user updated settings in another tab
+    window.addEventListener('focus', updateConfigStatus); 
+    // Also re-check when storage changes
+    window.addEventListener('storage', updateConfigStatus);
+    
+    return () => {
+        window.removeEventListener('focus', updateConfigStatus);
+        window.removeEventListener('storage', updateConfigStatus);
+    };
   }, []);
 
   const [settings, setSettings] = useState<Settings>({
@@ -44,12 +55,7 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
 
   const handleError = (err: any) => {
     const message = err instanceof Error ? err.message : 'Произошла неизвестная ошибка.';
-    // Напрямую показываем информативное сообщение об ошибке из сервиса
-    if (message.includes("API-ключ")) {
-      setError(message);
-    } else {
-      setError(message);
-    }
+    setError(message);
   };
 
   const handleEnhance = useCallback(async () => {
@@ -81,6 +87,7 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
     setIsGenerating(true);
     setError(null);
     try {
+      // Генерация всегда использует geminiService, согласно aiService
       const images = await generateImages(enhancedPrompt, settings.imageCount, settings.aspectRatio);
       setGeneratedImages(prevImages => [...images, ...prevImages]);
     } catch (err: any) {
@@ -90,7 +97,7 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
     }
   }, [enhancedPrompt, settings.imageCount, settings.aspectRatio]);
 
-  if (!hasApiKey) {
+  if (!isProviderConfigured) {
     return (
       <div className="flex-grow flex items-center justify-center">
         <ApiKeyPrompt onNavigate={onNavigate} />

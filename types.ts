@@ -18,3 +18,5 @@ export interface SelectOption {
 }
 
 export type Page = 'generator' | 'info' | 'history' | 'settings' | 'chat';
+
+export type AiProvider = 'google' | 'ollama';

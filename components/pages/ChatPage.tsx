@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { sendMessageToChat } from '../../services/geminiService';
+import { sendMessageToChat, isProviderConfigured as checkProviderConfig } from '../../services/aiService';
 import SendIcon from '../icons/SendIcon';
 import UserIcon from '../icons/UserIcon';
 import RobotIcon from '../icons/RobotIcon';
 import Loader from '../common/Loader';
+import PaperclipIcon from '../icons/PaperclipIcon';
 import { Page } from '../../types';
 
 interface Message {
@@ -16,10 +18,8 @@ interface ChatPageProps {
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
-  const [hasApiKey, setHasApiKey] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: 'Привет! Я — «EXPERT». Чем могу помочь Вам сегодня?' }
-  ]);
+  const [isProviderConfigured, setIsProviderConfigured] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,16 +31,18 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
   };
   
   useEffect(() => {
-    const checkApiKey = () => {
-      const key = localStorage.getItem('google-api-key');
-      setHasApiKey(!!key);
+    const updateConfigStatus = () => {
+        setIsProviderConfigured(checkProviderConfig());
     };
-
-    checkApiKey();
-    // Re-check when window gets focus in case user adds key in another tab
-    window.addEventListener('focus', checkApiKey);
+    updateConfigStatus();
+    // Re-check when window gets focus, in case user updated settings in another tab
+    window.addEventListener('focus', updateConfigStatus);
+    // Also re-check when storage changes, e.g. settings saved in another tab
+    window.addEventListener('storage', updateConfigStatus);
+    
     return () => {
-      window.removeEventListener('focus', checkApiKey);
+      window.removeEventListener('focus', updateConfigStatus);
+      window.removeEventListener('storage', updateConfigStatus);
     };
   }, []);
 
@@ -53,7 +55,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     if (textarea) {
       textarea.style.height = 'auto';
       const scrollHeight = textarea.scrollHeight;
-      const maxHeight = 200; // Cap height at ~5 lines
+      const maxHeight = 200; // Ограничение высоты ~5 строк
       textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
       textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
     }
@@ -61,17 +63,26 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userInput.trim() || isLoading || !hasApiKey) return;
+    const trimmedInput = userInput.trim();
+    if (!trimmedInput || isLoading || !isProviderConfigured) return;
 
-    const userMessage: Message = { role: 'user', text: userInput };
+    const userMessage: Message = { role: 'user', text: trimmedInput };
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = userInput;
     setUserInput('');
+
+    if (trimmedInput.toUpperCase() === 'ГЕЛИК') {
+        setTimeout(() => {
+            const modelMessage: Message = { role: 'model', text: 'Да доча,пиши что хочешь?' };
+            setMessages(prev => [...prev, modelMessage]);
+        }, 500);
+        return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const responseText = await sendMessageToChat(currentInput);
+      const responseText = await sendMessageToChat(trimmedInput);
       const modelMessage: Message = { role: 'model', text: responseText };
       setMessages(prev => [...prev, modelMessage]);
     } catch (err: any) {
@@ -110,47 +121,71 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     return (
       <div className="max-w-3xl mx-auto">
         {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-3 rounded-lg text-center text-sm mb-3">{error}</div>}
-        <form onSubmit={handleSendMessage} className="relative flex items-end gap-3 p-3 rounded-2xl bg-dark-secondary/80 backdrop-blur-xl border border-dark-tertiary/50 focus-within:border-brand-cyan transition-colors shadow-2xl shadow-black/50">
+        <form onSubmit={handleSendMessage} className="relative flex items-end gap-2 p-3 rounded-2xl bg-dark-secondary/80 backdrop-blur-xl border border-dark-tertiary/50 focus-within:border-brand-cyan transition-colors shadow-2xl shadow-black/50">
+            <button
+                type="button"
+                className="grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-colors duration-200 text-gray-400 hover:bg-dark-tertiary disabled:opacity-50"
+                aria-label="Прикрепить файл"
+                disabled={isLoading || !isProviderConfigured}
+            >
+                <PaperclipIcon className="w-6 h-6" />
+            </button>
             <textarea
               ref={textareaRef}
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={hasApiKey ? "Спросите что-нибудь у EXPERT..." : "Добавьте API-ключ в Настройках, чтобы начать..."}
+              placeholder={isProviderConfigured ? "Напишите Ваш вопрос" : "Настройте AI-провайдер в Настройках, чтобы начать..."}
               className="flex-grow bg-transparent border-none text-white rounded-lg focus:ring-0 block p-2 resize-none overflow-y-hidden disabled:opacity-50"
               rows={1}
-              disabled={isLoading || !hasApiKey}
+              disabled={isLoading || !isProviderConfigured}
               aria-label="Поле для ввода сообщения"
             />
             <button
                 type="submit"
-                disabled={!userInput.trim() || isLoading || !hasApiKey}
-                className={`grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-all duration-200 ${(userInput.trim() && !isLoading && hasApiKey) ? 'bg-brand-cyan text-white' : 'bg-dark-tertiary text-gray-400'}`}
+                disabled={!userInput.trim() || isLoading || !isProviderConfigured}
+                className={`grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-all duration-200 ${(userInput.trim() && !isLoading && isProviderConfigured) ? 'bg-brand-cyan text-white' : 'bg-dark-tertiary text-gray-400'}`}
                 aria-label="Отправить сообщение"
             >
                 {isLoading ? <Loader size="sm" /> : <SendIcon className="w-5 h-5" />}
             </button>
         </form>
+        <p className="text-center text-xs text-light-secondary/50 pt-3">
+          © 2025 сделано ART_IRBIT
+        </p>
       </div>
     );
   };
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">
-      <div className="flex-grow overflow-y-auto p-4 space-y-6 pb-40">
-        {messages.map((msg, index) => (
-          <MessageBubble key={index} message={msg} />
-        ))}
-        {isLoading && (
-          <div className="flex items-start gap-3 w-full max-w-3xl mx-auto flex-row">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-dark-tertiary">
-                <RobotIcon className="w-6 h-6 text-brand-cyan" />
+      <div className="flex-grow overflow-y-auto p-4 pb-64 flex flex-col">
+        {messages.length === 0 && !isLoading ? (
+            <div className="m-auto text-center p-4">
+               <h1 className="text-5xl font-black font-display tracking-wider text-light-primary">
+                  Добро пожаловать!
+               </h1>
+               <p className="text-light-secondary text-lg mt-4">
+                  Я-&laquo; AI EXPERT&raquo; Чем я могу Вам помочь?
+               </p>
             </div>
-            <div className="px-5 py-3 rounded-2xl bg-dark-secondary flex items-center space-x-2">
-              <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce"></div>
-            </div>
+        ) : (
+          <div className="space-y-6">
+            {messages.map((msg, index) => (
+              <MessageBubble key={index} message={msg} />
+            ))}
+            {isLoading && (
+              <div className="flex items-start gap-3 w-full max-w-3xl mx-auto flex-row">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-dark-tertiary">
+                    <RobotIcon className="w-6 h-6 text-brand-cyan" />
+                </div>
+                <div className="px-5 py-3 rounded-2xl bg-dark-secondary flex items-center space-x-2">
+                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2.5 h-2.5 bg-brand-cyan/60 rounded-full animate-bounce"></div>
+                </div>
+              </div>
+            )}
           </div>
         )}
         <div ref={messagesEndRef} />
