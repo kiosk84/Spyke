@@ -1,31 +1,53 @@
 import { Settings } from '../types';
-import { CHAT_SYSTEM_PROMPT } from '../constants';
-
-export const OLLAMA_URL_STORAGE_ITEM = 'ollama-url';
-export const OLLAMA_MODEL_STORAGE_ITEM = 'ollama-model';
+import { CHAT_SYSTEM_PROMPT, OLLAMA_URL_KEY, OLLAMA_MODEL_KEY, OLLAMA_PROXY_URL_KEY } from '../constants';
 
 const getProxyUrl = (): string => {
     // URL для API-моста, который проксирует запросы к Ollama.
-    // Этот адрес должен быть доступен из браузера. Для развернутых версий используется туннель.
-    return 'https://adapting-buck-naturally.ngrok-free.app';
+    return localStorage.getItem(OLLAMA_PROXY_URL_KEY) || '';
 }
 
 const getOllamaConfig = () => {
-    // Получает конфигурацию Ollama из localStorage или использует значения по умолчанию.
-    const url = localStorage.getItem(OLLAMA_URL_STORAGE_ITEM) || 'http://192.168.0.105:11434';
-    const model = localStorage.getItem(OLLAMA_MODEL_STORAGE_ITEM) || 'gemma3n';
+    // Получает конфигурацию Ollama из localStorage.
+    const url = localStorage.getItem(OLLAMA_URL_KEY) || '';
+    const model = localStorage.getItem(OLLAMA_MODEL_KEY) || '';
     return { url, model };
 };
 
 export const isConfigured = (): boolean => {
-    // По требованию пользователя, считаем Ollama настроенным по умолчанию.
-    // Это предполагает, что локальный сервер, API-мост и туннель запущены.
-    // Функции этого сервиса будут использовать конфигурацию из localStorage или
-    // значения по умолчанию, если ничего не сохранено.
-    return true;
+    return !!(
+        localStorage.getItem(OLLAMA_URL_KEY) &&
+        localStorage.getItem(OLLAMA_MODEL_KEY) &&
+        localStorage.getItem(OLLAMA_PROXY_URL_KEY)
+    );
 };
 
-const proxyFetch = async (endpoint: string, body: object, customOllamaUrl?: string) => {
+// Эта функция используется для живой проверки соединения со страницы настроек.
+// Она принимает URL как аргументы, чтобы тестировать значения из полей ввода, а не из хранилища.
+export const checkConnection = async (ollamaUrl: string, proxyUrl: string): Promise<{ success: boolean; message: string }> => {
+    try {
+        const response = await fetch(`${proxyUrl}/api/ollama/check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ollamaUrl }),
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || `Ошибка прокси-сервера: ${response.statusText}`);
+        }
+        
+        return { success: true, message: data.message || 'Успешное подключение!' };
+
+    } catch (error) {
+        console.error(`Error checking connection via proxy ${proxyUrl}:`, error);
+        const message = error instanceof Error ? error.message : 'Не удалось проверить подключение.';
+        return { success: false, message: `Ошибка при проверке: ${message}` };
+    }
+};
+
+
+const proxyFetch = async (endpoint: string, body: object) => {
     const { url, model } = getOllamaConfig();
     const proxyBaseUrl = getProxyUrl();
 
@@ -34,7 +56,7 @@ const proxyFetch = async (endpoint: string, body: object, customOllamaUrl?: stri
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                ollamaUrl: customOllamaUrl || url, // Use custom URL if provided (for checks)
+                ollamaUrl: url,
                 ollamaModel: model,
                 ...body,
             }),
@@ -83,7 +105,21 @@ export const sendMessageToChatStream = async (message: string, onChunk: (chunk: 
 
         while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
+            if (done) {
+                // Process any remaining data in the buffer before breaking.
+                // This is crucial for handling the final part of the stream.
+                if (buffer.trim()) {
+                    try {
+                        const parsed = JSON.parse(buffer);
+                        if (parsed.message?.content) {
+                            onChunk(parsed.message.content);
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse final stream chunk:', buffer, e);
+                    }
+                }
+                break;
+            }
 
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');

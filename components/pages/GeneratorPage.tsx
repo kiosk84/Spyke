@@ -4,34 +4,16 @@ import PromptDisplay from '../PromptDisplay';
 import ImageGallery from '../ImageGallery';
 import Button from '../common/Button';
 import CameraIcon from '../icons/CameraIcon';
-import ApiKeyPrompt from '../common/ApiKeyPrompt';
-import { Settings, Page } from '../../types';
-import { enhancePrompt, generateImages, isProviderConfigured as checkProviderConfig } from '../../services/aiService';
+import { Settings, Page, AiProvider } from '../../types';
+import { enhancePrompt, generateImages, getAiProvider, isOllamaConfigured } from '../../services/aiService';
 import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT } from '../../constants';
+import ApiKeyPrompt from '../common/ApiKeyPrompt';
 
 interface GeneratorPageProps {
   onNavigate: (page: Page) => void;
 }
 
 const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
-  const [isProviderConfigured, setIsProviderConfigured] = useState(false);
-
-  useEffect(() => {
-    const updateConfigStatus = () => {
-        setIsProviderConfigured(checkProviderConfig());
-    };
-    updateConfigStatus();
-    // Re-check when window gets focus, in case user updated settings in another tab
-    window.addEventListener('focus', updateConfigStatus); 
-    // Also re-check when storage changes
-    window.addEventListener('storage', updateConfigStatus);
-    
-    return () => {
-        window.removeEventListener('focus', updateConfigStatus);
-        window.removeEventListener('storage', updateConfigStatus);
-    };
-  }, []);
-
   const [settings, setSettings] = useState<Settings>({
     idea: '',
     style: ART_STYLES[0].value,
@@ -48,6 +30,12 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
   const [isEnhancing, setIsEnhancing] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentProvider, setCurrentProvider] = useState<AiProvider>('google');
+
+  useEffect(() => {
+    // Check provider on mount
+    setCurrentProvider(getAiProvider());
+  }, []);
 
   const handleSettingsChange = useCallback((field: keyof Settings, value: any) => {
     setSettings(prev => ({ ...prev, [field]: value }));
@@ -87,7 +75,6 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
     setIsGenerating(true);
     setError(null);
     try {
-      // Генерация всегда использует geminiService, согласно aiService
       const images = await generateImages(enhancedPrompt, settings.imageCount, settings.aspectRatio);
       setGeneratedImages(prevImages => [...images, ...prevImages]);
     } catch (err: any) {
@@ -96,10 +83,12 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
       setIsGenerating(false);
     }
   }, [enhancedPrompt, settings.imageCount, settings.aspectRatio]);
+  
+  const providerText = currentProvider === 'ollama' ? 'Ollama' : 'Google Gemini';
 
-  if (!isProviderConfigured) {
+  if (currentProvider === 'ollama' && !isOllamaConfigured()) {
     return (
-      <div className="flex-grow flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <ApiKeyPrompt onNavigate={onNavigate} />
       </div>
     );
@@ -125,6 +114,9 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
             >
                 Создать изображение
             </Button>
+            <p className="text-center text-xs text-light-secondary/60">
+              *Генерация изображений выполняется с помощью Google AI (Imagen). Улучшение: {providerText}*
+            </p>
             {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center">{error}</div>}
         </div>
         <ImageGallery images={generatedImages} isGenerating={isGenerating} />

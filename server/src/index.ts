@@ -1,6 +1,11 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import fetch, { Response as FetchResponse } from 'node-fetch';
+// We are defining ParamsDictionary locally to avoid import issues.
+// import { ParamsDictionary } from 'express-serve-static-core';
+import fetch from 'node-fetch';
+import type { Response as FetchResponse } from 'node-fetch';
+import type { Readable } from 'stream';
+
 
 const app = express();
 const port = 3001;
@@ -15,11 +20,21 @@ interface OllamaProxyRequestBody {
     [key: string]: any; // for other properties like 'messages' or 'prompt'
 }
 
-interface OllamaProxyParams {
+/**
+ * Local definition to circumvent import errors from express-serve-static-core.
+ */
+interface ParamsDictionary {
+    [key: string]: string;
+}
+
+interface OllamaProxyParams extends ParamsDictionary {
     endpoint: string;
 }
 
-const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaProxyRequestBody>, res: Response) => {
+const ollamaProxyHandler = async (
+    req: Request<OllamaProxyParams, any, OllamaProxyRequestBody>,
+    res: Response
+) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;
 
@@ -27,10 +42,12 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
         return res.status(400).json({ error: 'Неверный URL Ollama или эндпоинт.' });
     }
 
+    const cleanedOllamaUrl = ollamaUrl.trim().replace(/\/$/, '');
+
     // Special case for checking connection
     if (endpoint === 'check') {
          try {
-            const response: FetchResponse = await fetch(ollamaUrl);
+            const response = await fetch(cleanedOllamaUrl) as FetchResponse;
             if (response.ok) {
                 return res.json({ success: true, message: 'Ollama is running' });
             } else {
@@ -39,22 +56,22 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
         } catch (error) {
             console.error('Proxy check connection error:', error);
             const message = error instanceof Error ? error.message : String(error);
-            return res.status(500).json({ success: false, error: `Прокси-сервер не смог подключиться к Ollama по адресу ${ollamaUrl}. Убедитесь, что он запущен. Ошибка: ${message}` });
+            return res.status(500).json({ success: false, error: `Прокси-сервер не смог подключиться к Ollama по адресу ${cleanedOllamaUrl}. Убедитесь, что он запущен. Ошибка: ${message}` });
         }
     }
 
-    const targetUrl = `${ollamaUrl}/api/${endpoint}`;
+    const targetUrl = `${cleanedOllamaUrl}/api/${endpoint}`;
     const requestBody = {
         model: ollamaModel,
         ...body
     };
     
     try {
-        const ollamaResponse: FetchResponse = await fetch(targetUrl, {
+        const ollamaResponse = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody)
-        });
+        }) as FetchResponse;
 
         if (!ollamaResponse.ok) {
             const errorText = await ollamaResponse.text();
@@ -68,7 +85,37 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
         
         if (requestBody.stream && ollamaResponse.body) {
             res.setHeader('Content-Type', ollamaResponse.headers.get('content-type') || 'application/x-ndjson');
-            ollamaResponse.body.pipe(res);
+            
+            const sourceStream = ollamaResponse.body as Readable;
+
+            // Handle client disconnection
+            req.on('close', () => {
+                console.log('Client disconnected, closing stream to Ollama.');
+                if (!sourceStream.destroyed) {
+                    sourceStream.destroy();
+                }
+            });
+
+            // Forward data chunks manually
+            sourceStream.on('data', (chunk: Buffer) => {
+                res.write(chunk);
+            });
+
+            // Handle end of stream
+            sourceStream.on('end', () => {
+                res.end();
+            });
+
+            // Handle errors from the source stream
+            sourceStream.on('error', (err: Error) => {
+                console.error('Stream error from Ollama:', err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Ошибка потока при чтении ответа от Ollama.' });
+                } else {
+                    res.end();
+                }
+            });
+            
         } else {
             const data: any = await ollamaResponse.json();
             return res.json(data);
@@ -77,7 +124,7 @@ const ollamaProxyHandler = async (req: Request<OllamaProxyParams, any, OllamaPro
     } catch (error) {
         console.error('Proxy request error:', error);
         const message = error instanceof Error ? error.message : String(error);
-        res.status(500).json({ error: `Прокси-сервер не смог подключиться к вашему серверу Ollama по адресу ${ollamaUrl}. Убедитесь, что Ollama запущен и доступен. Ошибка: ${message}` });
+        res.status(500).json({ error: `Прокси-сервер не смог подключиться к вашему серверу Ollama по адресу ${cleanedOllamaUrl}. Убедитесь, что Ollama запущен и доступен. Ошибка: ${message}` });
     }
 };
 

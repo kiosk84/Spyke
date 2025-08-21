@@ -1,57 +1,65 @@
-import { GoogleGenAI, Chat } from "@google/genai";
-import { Settings, ImageAspectRatio } from '../types';
-import { CHAT_SYSTEM_PROMPT } from "../constants";
-
-export const API_KEY_STORAGE_ITEM = 'google-api-key';
-
-let chat: Chat | null = null; // Module-level chat instance
-
-export const isConfigured = (): boolean => {
-    return !!localStorage.getItem(API_KEY_STORAGE_ITEM);
-};
+import { GoogleGenAI } from "@google/genai";
+import { ImageAspectRatio, Settings } from '../types';
+import { CHAT_SYSTEM_PROMPT } from '../constants';
 
 const getAiClient = () => {
-    const apiKey = localStorage.getItem(API_KEY_STORAGE_ITEM);
-
-    if (!apiKey) {
-        throw new Error("API-ключ не найден. Пожалуйста, введите и сохраните ваш ключ на странице 'Настройки'.");
+    // API-ключ должен быть получен исключительно из переменных окружения.
+    if (!process.env.API_KEY) {
+        throw new Error("API-ключ Google не найден в переменных окружения.");
     }
-    return new GoogleGenAI({ apiKey });
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {
+    const ai = getAiClient();
+    const model = 'gemini-2.5-flash';
     const metaPrompt = `
-You are an expert prompt engineer for AI image generation models. Your task is to create a single, highly-detailed, professional, and artistically rich prompt in English. This prompt will be used to generate an image. The final output must be in English only, consisting of a comma-separated list of keywords, concepts, and stylistic descriptors. Do not add any conversational text, introductions, explanations, or markdown formatting.
+You are an expert prompt engineer for AI image generation.
+Create a single, highly-detailed, professional, and artistically rich prompt in English.
+The final output must be a comma-separated list of keywords, concepts, and stylistic descriptors.
+Do not add any conversational text or explanations.
 
 ---
 USER'S REQUEST DETAILS:
-- Core Idea (in Russian): ${settings.idea}
-- Desired Style: ${settings.style}
-- Desired Lighting: ${settings.lighting}
-- Desired Camera Angle: ${settings.angle}
-- Desired Mood: ${settings.mood}
-- Things to AVOID (Negative Prompt): ${settings.negativePrompt}
+- Core Idea: ${settings.idea}
+- Style: ${settings.style}
+- Lighting: ${settings.lighting}
+- Camera Angle: ${settings.angle}
+- Mood: ${settings.mood}
+- Negative Prompt (avoid these): ${settings.negativePrompt}
 ---
-INSTRUCTIONS:
-1. Translate the Russian "Core Idea" into a compelling English concept.
-2. Weave together the core idea with the specified style, lighting, camera angle, and mood to create a cohesive artistic vision.
-3. Crucially, construct the final prompt to actively AVOID the concepts listed in "Things to AVOID". For example, if the negative prompt is "blurry, bad hands", the positive prompt should include terms like "sharp focus, hyper-detailed, masterpiece, anatomically correct hands".
-4. Your final output should be a single block of text: the engineered prompt, ready for an image generation model.
+Generate the prompt.
 `;
-
     try {
-        const ai = getAiClient();
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model,
             contents: metaPrompt,
         });
         return response.text.trim();
     } catch (error) {
-        console.error("Error enhancing prompt:", error);
-        if (error instanceof Error && error.message.includes('API key not valid')) {
-             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
+        console.error("Error enhancing prompt with Gemini:", error);
+        throw new Error(`Не удалось улучшить промпт с помощью Gemini. ${error instanceof Error ? error.message : ''}`);
+    }
+};
+
+export const sendMessageToChatStream = async (message: string, onChunk: (chunk: string) => void): Promise<void> => {
+    const ai = getAiClient();
+    const model = 'gemini-2.5-flash';
+    try {
+        const response = await ai.models.generateContentStream({
+            model,
+            contents: message,
+            config: {
+                systemInstruction: CHAT_SYSTEM_PROMPT,
+            }
+        });
+
+        for await (const chunk of response) {
+            onChunk(chunk.text);
         }
-        throw new Error(`Не удалось улучшить промпт. ${error instanceof Error ? error.message : ''}`);
+    } catch (error) {
+        console.error("Error sending message to Gemini stream:", error);
+        throw new Error(`Не удалось отправить сообщение в чат Gemini. ${error instanceof Error ? error.message : ''}`);
     }
 };
 
@@ -76,35 +84,8 @@ export const generateImages = async (
     } catch (error) {
         console.error("Error generating images:", error);
         if (error instanceof Error && error.message.includes('API key not valid')) {
-             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
+             throw new Error("API-ключ Google недействителен. Проверьте конфигурацию сервера.");
         }
         throw new Error(`Не удалось сгенерировать изображения. ${error instanceof Error ? error.message : ''}`);
-    }
-};
-
-export const sendMessageToChatStream = async (
-    message: string,
-    onChunk: (chunk: string) => void
-): Promise<void> => {
-    try {
-        const ai = getAiClient();
-        if (!chat) {
-            chat = ai.chats.create({
-                model: 'gemini-2.5-flash',
-                config: {
-                    systemInstruction: CHAT_SYSTEM_PROMPT,
-                },
-            });
-        }
-        const responseStream = await chat.sendMessageStream({ message });
-        for await (const chunk of responseStream) {
-            onChunk(chunk.text);
-        }
-    } catch (error) {
-        console.error("Error sending message to chat stream:", error);
-        if (error instanceof Error && error.message.includes('API key not valid')) {
-             throw new Error("Неверный API-ключ. Проверьте ключ на странице 'Настройки'.");
-        }
-        throw new Error(`Не удалось отправить сообщение. ${error instanceof Error ? error.message : ''}`);
     }
 };

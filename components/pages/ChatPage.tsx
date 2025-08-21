@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { sendMessageToChatStream, isProviderConfigured as checkProviderConfig } from '../../services/aiService';
+import { sendMessageToChatStream, getAiProvider, isOllamaConfigured } from '../../services/aiService';
 import SendIcon from '../icons/SendIcon';
 import UserIcon from '../icons/UserIcon';
 import RobotIcon from '../icons/RobotIcon';
 import Loader from '../common/Loader';
 import PaperclipIcon from '../icons/PaperclipIcon';
-import { Page } from '../../types';
+import { Page, AiProvider } from '../../types';
+import ApiKeyPrompt from '../common/ApiKeyPrompt';
 
 interface Message {
   role: 'user' | 'model';
@@ -17,31 +18,22 @@ interface ChatPageProps {
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
-  const [isProviderConfigured, setIsProviderConfigured] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [currentProvider, setCurrentProvider] = useState<AiProvider>('google');
+
+  useEffect(() => {
+    // Check provider on mount
+    setCurrentProvider(getAiProvider());
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
-  useEffect(() => {
-    const updateConfigStatus = () => {
-        setIsProviderConfigured(checkProviderConfig());
-    };
-    updateConfigStatus();
-    window.addEventListener('focus', updateConfigStatus);
-    window.addEventListener('storage', updateConfigStatus);
-    
-    return () => {
-      window.removeEventListener('focus', updateConfigStatus);
-      window.removeEventListener('storage', updateConfigStatus);
-    };
-  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -61,7 +53,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedInput = userInput.trim();
-    if (!trimmedInput || isLoading || !isProviderConfigured) return;
+    if (!trimmedInput || isLoading) return;
 
     const userMessage: Message = { role: 'user', text: trimmedInput };
     setMessages(prev => [...prev, userMessage, { role: 'model', text: '' }]);
@@ -133,7 +125,7 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
                 type="button"
                 className="grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-colors duration-200 text-gray-400 hover:bg-dark-tertiary disabled:opacity-50"
                 aria-label="Прикрепить файл"
-                disabled={isLoading || !isProviderConfigured}
+                disabled={isLoading}
             >
                 <PaperclipIcon className="w-6 h-6" />
             </button>
@@ -142,16 +134,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isProviderConfigured ? "Напишите Ваш вопрос" : "Настройте AI-провайдер в Настройках, чтобы начать..."}
+              placeholder="Напишите Ваш вопрос"
               className="flex-grow bg-transparent border-none text-white rounded-lg focus:ring-0 block p-2.5 resize-none overflow-y-hidden disabled:opacity-50"
               rows={1}
-              disabled={isLoading || !isProviderConfigured}
+              disabled={isLoading}
               aria-label="Поле для ввода сообщения"
             />
             <button
                 type="submit"
-                disabled={!userInput.trim() || isLoading || !isProviderConfigured}
-                className={`grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-all duration-200 ${(userInput.trim() && !isLoading && isProviderConfigured) ? 'bg-brand-cyan text-white' : 'bg-dark-tertiary text-gray-400'}`}
+                disabled={!userInput.trim() || isLoading}
+                className={`grid place-items-center flex-shrink-0 w-10 h-10 rounded-full transition-all duration-200 ${(userInput.trim() && !isLoading) ? 'bg-brand-cyan text-white' : 'bg-dark-tertiary text-gray-400'}`}
                 aria-label="Отправить сообщение"
             >
                 {isLoading ? <Loader size="sm" /> : <SendIcon className="w-5 h-5" />}
@@ -174,6 +166,14 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
         </div>
     </div>
   );
+
+  if (currentProvider === 'ollama' && !isOllamaConfigured()) {
+    return (
+        <div className="flex items-center justify-center h-full">
+            <ApiKeyPrompt onNavigate={onNavigate} />
+        </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">
