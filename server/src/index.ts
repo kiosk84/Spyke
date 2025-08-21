@@ -1,3 +1,4 @@
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 // We are defining ParamsDictionary locally to avoid import issues.
@@ -20,20 +21,9 @@ interface OllamaProxyRequestBody {
     [key: string]: any; // for other properties like 'messages' or 'prompt'
 }
 
-/**
- * Local definition to circumvent import errors from express-serve-static-core.
- */
-interface ParamsDictionary {
-    [key: string]: string;
-}
-
-interface OllamaProxyParams extends ParamsDictionary {
-    endpoint: string;
-}
-
 const ollamaProxyHandler = async (
-    req: Request<OllamaProxyParams, any, OllamaProxyRequestBody>,
-    res: Response
+    req: any,
+    res: any
 ) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;
@@ -97,7 +87,7 @@ const ollamaProxyHandler = async (
             });
 
             // Forward data chunks manually
-            sourceStream.on('data', (chunk: Buffer) => {
+            sourceStream.on('data', (chunk: Uint8Array) => {
                 res.write(chunk);
             });
 

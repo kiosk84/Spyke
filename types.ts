@@ -17,6 +17,6 @@ export interface SelectOption {
   label: string;
 }
 
-export type Page = 'generator' | 'info' | 'history' | 'settings' | 'chat';
-
 export type AiProvider = 'google' | 'ollama';
+
+export type Page = 'generator' | 'info' | 'history' | 'chat' | 'settings';

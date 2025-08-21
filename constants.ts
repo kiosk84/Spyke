@@ -1,3 +1,4 @@
+
 import { ImageAspectRatio, SelectOption } from './types';
 
 export const ART_STYLES: SelectOption[] = [
@@ -63,8 +64,8 @@ export const DEFAULT_NEGATIVE_PROMPT = 'плохая анатомия, разм�
 
 export const CHAT_SYSTEM_PROMPT = `Ты — GPT-5, продвинутый AI-ассистент. Твоя личность: дружелюбный, полезный, немного саркастичный эксперт. Твоя задача — помогать пользователям в чате и при создании промптов. Отвечай на русском языке. Будь кратким, но информативным. Если тебя спросят, кто ты, скажи, что ты AI-ассистент EXPERT.`;
 
-// Local Storage Keys
-export const AI_PROVIDER_KEY = 'ai-provider';
-export const OLLAMA_URL_KEY = 'ollama-url';
-export const OLLAMA_MODEL_KEY = 'ollama-model';
-export const OLLAMA_PROXY_URL_KEY = 'ollama-proxy-url';
+// Local storage keys
+export const AI_PROVIDER_KEY = 'ai_provider';
+export const OLLAMA_URL_KEY = 'ollama_url';
+export const OLLAMA_MODEL_KEY = 'ollama_model';
+export const OLLAMA_PROXY_URL_KEY = 'ollama_proxy_url';

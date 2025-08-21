@@ -1,11 +1,12 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import GeneratorPage from './components/pages/GeneratorPage';
 import InfoPage from './components/pages/InfoPage';
 import HistoryPage from './components/pages/HistoryPage';
-import SettingsPage from './components/pages/SettingsPage';
 import ChatPage from './components/pages/ChatPage';
+import SettingsPage from './components/pages/SettingsPage';
 import SplashScreen from './components/SplashScreen';
 import ParticleBackground from './components/common/ParticleBackground';
 import { Page } from './types';
@@ -33,10 +34,10 @@ const App: React.FC = () => {
         return <InfoPage />;
       case 'history':
         return <HistoryPage />;
-      case 'settings':
-        return <SettingsPage />;
       case 'generator':
         return <GeneratorPage onNavigate={handleNavigate} />;
+      case 'settings':
+        return <SettingsPage />;
       default:
         return <ChatPage onNavigate={handleNavigate} />;
     }

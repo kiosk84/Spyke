@@ -1,13 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import SettingsPanel from '../SettingsPanel';
 import PromptDisplay from '../PromptDisplay';
 import ImageGallery from '../ImageGallery';
 import Button from '../common/Button';
 import CameraIcon from '../icons/CameraIcon';
-import { Settings, Page, AiProvider } from '../../types';
-import { enhancePrompt, generateImages, getAiProvider, isOllamaConfigured } from '../../services/aiService';
+import { Settings, Page } from '../../types';
+import { enhancePrompt, generateImages } from '../../services/geminiService';
 import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT } from '../../constants';
-import ApiKeyPrompt from '../common/ApiKeyPrompt';
 
 interface GeneratorPageProps {
   onNavigate: (page: Page) => void;
@@ -30,12 +29,6 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
   const [isEnhancing, setIsEnhancing] = useState<boolean>(false);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentProvider, setCurrentProvider] = useState<AiProvider>('google');
-
-  useEffect(() => {
-    // Check provider on mount
-    setCurrentProvider(getAiProvider());
-  }, []);
 
   const handleSettingsChange = useCallback((field: keyof Settings, value: any) => {
     setSettings(prev => ({ ...prev, [field]: value }));
@@ -83,16 +76,6 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
       setIsGenerating(false);
     }
   }, [enhancedPrompt, settings.imageCount, settings.aspectRatio]);
-  
-  const providerText = currentProvider === 'ollama' ? 'Ollama' : 'Google Gemini';
-
-  if (currentProvider === 'ollama' && !isOllamaConfigured()) {
-    return (
-      <div className="flex items-center justify-center py-16">
-        <ApiKeyPrompt onNavigate={onNavigate} />
-      </div>
-    );
-  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -115,7 +98,7 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
                 Создать изображение
             </Button>
             <p className="text-center text-xs text-light-secondary/60">
-              *Генерация изображений выполняется с помощью Google AI (Imagen). Улучшение: {providerText}*
+              *Улучшение промпта и генерация изображений выполняются с помощью Google AI.*
             </p>
             {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center">{error}</div>}
         </div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import CoinIcon from './icons/CoinIcon';
 import BurgerIcon from './icons/BurgerIcon';
@@ -17,7 +18,6 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
         { page: 'generator', label: 'Генератор' },
         { page: 'info', label: 'Информация' },
         { page: 'history', label: 'История' },
-        { page: 'settings', label: 'Настройки' }
     ];
 
     const getLinkClasses = (page: Page) =>

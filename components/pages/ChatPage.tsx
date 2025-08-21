@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { sendMessageToChatStream, getAiProvider, isOllamaConfigured } from '../../services/aiService';
+import { sendMessageToChatStream } from '../../services/geminiService';
 import SendIcon from '../icons/SendIcon';
 import UserIcon from '../icons/UserIcon';
 import RobotIcon from '../icons/RobotIcon';
 import Loader from '../common/Loader';
 import PaperclipIcon from '../icons/PaperclipIcon';
-import { Page, AiProvider } from '../../types';
-import ApiKeyPrompt from '../common/ApiKeyPrompt';
+import { Page } from '../../types';
 
 interface Message {
   role: 'user' | 'model';
@@ -24,12 +23,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [currentProvider, setCurrentProvider] = useState<AiProvider>('google');
-
-  useEffect(() => {
-    // Check provider on mount
-    setCurrentProvider(getAiProvider());
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -166,14 +159,6 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
         </div>
     </div>
   );
-
-  if (currentProvider === 'ollama' && !isOllamaConfigured()) {
-    return (
-        <div className="flex items-center justify-center h-full">
-            <ApiKeyPrompt onNavigate={onNavigate} />
-        </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">
