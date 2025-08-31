@@ -1,8 +1,9 @@
 
-import express, { Request, Response } from 'express';
+// FIX: Consolidated express imports to resolve type errors. The type-only import
+// was causing issues with type inference for the express app, request, and response objects.
+// Aliases are kept to avoid potential conflicts with global DOM types.
+import express, { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import cors from 'cors';
-// We are defining ParamsDictionary locally to avoid import issues.
-// import { ParamsDictionary } from 'express-serve-static-core';
 import fetch from 'node-fetch';
 import type { Response as FetchResponse } from 'node-fetch';
 import type { Readable } from 'stream';
@@ -22,8 +23,8 @@ interface OllamaProxyRequestBody {
 }
 
 const ollamaProxyHandler = async (
-    req: any,
-    res: any
+    req: ExpressRequest<{ endpoint: string }, any, OllamaProxyRequestBody>,
+    res: ExpressResponse
 ) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;

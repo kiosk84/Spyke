@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { sendMessageToChatStream } from '../../services/geminiService';
 import SendIcon from '../icons/SendIcon';
@@ -6,6 +7,8 @@ import RobotIcon from '../icons/RobotIcon';
 import Loader from '../common/Loader';
 import PaperclipIcon from '../icons/PaperclipIcon';
 import { Page } from '../../types';
+import { CHAT_HISTORY_KEY } from '../../constants';
+import { useTelegram } from '../../hooks/useTelegram';
 
 interface Message {
   role: 'user' | 'model';
@@ -17,7 +20,16 @@ interface ChatPageProps {
 }
 
 const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { user } = useTelegram();
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      const savedHistory = localStorage.getItem(CHAT_HISTORY_KEY);
+      return savedHistory ? JSON.parse(savedHistory) : [];
+    } catch (error) {
+      console.error("Не удалось проанализировать историю чата из localStorage:", error);
+      return [];
+    }
+  });
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +43,15 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    // Сохранение истории в localStorage при изменении сообщений
+    try {
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
+    } catch (error) {
+      console.error("Не удалось сохранить историю чата в localStorage:", error);
+    }
+  }, [messages]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -149,16 +170,23 @@ const ChatPage: React.FC<ChatPageProps> = ({ onNavigate }) => {
     );
   };
   
-  const WelcomeMessage = () => (
-    <div className="flex items-start gap-3 w-full max-w-3xl mx-auto flex-row mt-4 animate-fade-in">
-        <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-dark-tertiary">
-            <RobotIcon className="w-5 h-5 text-brand-cyan" />
+  const WelcomeMessage = () => {
+    const name = user?.first_name;
+    const welcomeText = name
+        ? `Добро пожаловать, ${name}! Я — «AI EXPERT». Чем я могу вам помочь сегодня?`
+        : 'Добро пожаловать! Я — «AI EXPERT». Чем я могу вам помочь сегодня?';
+
+    return (
+        <div className="flex items-start gap-3 w-full max-w-3xl mx-auto flex-row mt-4 animate-fade-in">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-dark-tertiary">
+                <RobotIcon className="w-5 h-5 text-brand-cyan" />
+            </div>
+            <div className="p-4 rounded-2xl bg-dark-secondary/50 backdrop-blur-sm border border-white/10">
+                <p className="text-light-primary/90 whitespace-pre-wrap leading-relaxed">{welcomeText}</p>
+            </div>
         </div>
-        <div className="p-4 rounded-2xl bg-dark-secondary/50 backdrop-blur-sm border border-white/10">
-            <p className="text-light-primary/90 whitespace-pre-wrap leading-relaxed">Добро пожаловать! Я — «AI EXPERT». Чем я могу вам помочь сегодня?</p>
-        </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto relative">

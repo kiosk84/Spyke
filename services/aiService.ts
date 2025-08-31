@@ -1,3 +1,4 @@
+
 import { Settings, ImageAspectRatio, AiProvider } from '../types';
 import * as geminiService from './geminiService';
 import * as ollamaService from './ollamaService';
@@ -19,6 +20,14 @@ export const enhancePrompt = (settings: Omit<Settings, 'imageCount' | 'aspectRat
       return ollamaService.enhancePrompt(settings);
   }
   return geminiService.enhancePrompt(settings);
+};
+
+/**
+ * Генерирует промпт из изображения с помощью Google Gemini.
+ * Эта функция всегда использует Google AI.
+ */
+export const generatePromptFromImage = (base64Image: string, mimeType: string): Promise<string> => {
+    return geminiService.generatePromptFromImage(base64Image, mimeType);
 };
 
 /**
@@ -49,6 +58,28 @@ export const generateImages = (
 ): Promise<string[]> => {
   return geminiService.generateImages(prompt, imageCount, aspectRatio);
 };
+
+/**
+ * Редактирует изображение на основе текстового промпта с помощью Google AI.
+ */
+export const editImage = (
+  prompt: string,
+  base64ImageData: string,
+  mimeType: string,
+  aspectRatio: ImageAspectRatio
+): Promise<string[]> => {
+  // Image editing is a Google-specific feature for now
+  return geminiService.editImage(prompt, base64ImageData, mimeType, aspectRatio);
+};
+
+/**
+ * Улучшает и переводит пользовательский промпт для редактора изображений.
+ * Эта функция всегда использует Google AI.
+ */
+export const enhanceCustomPrompt = (userPrompt: string): Promise<string> => {
+    return geminiService.enhanceCustomPrompt(userPrompt);
+};
+
 
 export const isOllamaConfigured = ollamaService.isConfigured;
 export const getAiProvider = getProvider;

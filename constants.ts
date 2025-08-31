@@ -69,3 +69,5 @@ export const AI_PROVIDER_KEY = 'ai_provider';
 export const OLLAMA_URL_KEY = 'ollama_url';
 export const OLLAMA_MODEL_KEY = 'ollama_model';
 export const OLLAMA_PROXY_URL_KEY = 'ollama_proxy_url';
+export const CHAT_HISTORY_KEY = 'chat_history';
+export const GENERATOR_SETTINGS_KEY = 'generator_settings';

@@ -1,21 +1,25 @@
 
 import React, { useState } from 'react';
-import CoinIcon from './icons/CoinIcon';
+import UserIcon from './icons/UserIcon';
 import BurgerIcon from './icons/BurgerIcon';
 import CloseIcon from './icons/CloseIcon';
 import { Page } from '../types';
+import { TGUser } from '../hooks/useTelegram';
 
 interface HeaderProps {
     activePage: Page;
     onNavigate: (page: Page) => void;
+    tgUser?: TGUser;
 }
 
-const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
+const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navLinks: { page: Page; label: string }[] = [
         { page: 'chat', label: 'Чат' },
         { page: 'generator', label: 'Генератор' },
+        { page: 'editor', label: 'Редактор' },
+        { page: 'timeMachine', label: 'Машина времени' },
         { page: 'info', label: 'Информация' },
         { page: 'history', label: 'История' },
     ];
@@ -27,11 +31,12 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
             : 'text-light-secondary hover:text-white hover:bg-dark-tertiary/50'
         }`;
 
-    const CoinDisplay = () => (
+    const UserDisplay = () => (
          <div className="flex items-center gap-2 bg-dark-tertiary px-4 py-2 rounded-full text-sm font-semibold shadow-inner">
-            <CoinIcon className="w-5 h-5 text-yellow-400" />
-            <span className="text-white">100</span>
-            <span className="text-light-secondary">монет</span>
+            <UserIcon className="w-5 h-5 text-brand-cyan" />
+            <span className="text-white truncate max-w-[120px]">
+                {tgUser?.first_name || 'Пользователь'}
+            </span>
         </div>
     );
 
@@ -40,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
             <header className="py-3 border-b border-dark-tertiary/50 sticky top-0 z-20 bg-dark-primary/70 backdrop-blur-lg">
                 <div className="container mx-auto px-4 flex items-center justify-between">
                     {/* LEFT: Logo */}
-                    <button onClick={() => onNavigate('chat')} className="flex items-center group transition-transform hover:scale-105">
+                    <button onClick={() => onNavigate('landing')} className="flex items-center group transition-transform hover:scale-105">
                        <span className="text-xl font-bold font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta">
                          AI EXPERT
                        </span>
@@ -53,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
                                 {label}
                             </button>
                         ))}
-                        <CoinDisplay />
+                        <UserDisplay />
                     </nav>
 
                     {/* RIGHT: Mobile Burger Button */}
@@ -105,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate }) => {
                         </button>
                     ))}
                     <div className="pt-4 mt-2 border-t border-dark-tertiary/50 flex justify-center">
-                        <CoinDisplay />
+                        <UserDisplay />
                     </div>
                 </nav>
             </aside>
