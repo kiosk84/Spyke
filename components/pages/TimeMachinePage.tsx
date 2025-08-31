@@ -37,8 +37,35 @@ const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, m
 };
 
 const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
-const getInitialPrompt = (decade: string) => `Artistic portrait inspired by a photograph of a person, capturing the essence of the ${decade}. Focus on the characteristic clothing, hairstyle, makeup, and overall aesthetic of the era. The output MUST be a photorealistic image only. No text.`;
-const getRegenPrompt = (decade: string) => `Artistic portrait inspired by a photograph of a person, capturing the essence of the ${decade}. Focus on the characteristic clothing, hairstyle, makeup, and overall aesthetic of the era. A different take. The output MUST be a photorealistic image only. No text.`;
+
+// Prompts are simplified to be more direct and reliable.
+const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
+    '1950s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as a 1950s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1950s style. Make it look like old color film.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a classic 1950s black and white portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1950s style.`
+    },
+    '1960s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as a 1960s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1960s style. Give it a vintage film look.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a casual 1960s color snapshot. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a relaxed 1960s style.`
+    },
+    '1970s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as a 1970s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1970s style. Use slightly faded, warm colors.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a 1970s disco-style portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a flashy 1970s disco style.`
+    },
+    '1980s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as a 1980s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1980s style. Use bright, vibrant colors.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a stylish 1980s portrait with neon colors. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a fashionable 1980s style.`
+    },
+    '1990s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as a 1990s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1990s style. Make it look like a 35mm film photo.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a bright, clean 1990s portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a popular 1990s style.`
+    },
+    '2000s': {
+        initial: `Task: edit image. Output: image only. Recreate photo as if taken with an early 2000s digital camera. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to early 2000s style. Use a direct flash effect.`,
+        regen: `Task: edit image. Output: image only. Recreate photo as a casual mid-2000s picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a popular mid-2000s style.`
+    },
+};
+
 
 const TimeMachinePage: React.FC = () => {
     const [originalImage, setOriginalImage] = useState<UploadedImage | null>(null);
@@ -73,28 +100,36 @@ const TimeMachinePage: React.FC = () => {
         if (!originalImage) return;
         setIsGeneratingAll(true);
         setError(null);
-
+    
         const initialStates: Record<string, DecadeImage> = {};
         DECADES.forEach(decade => {
             initialStates[decade] = { url: null, isLoading: true };
         });
         setGeneratedImages(initialStates);
-
-        const promises = DECADES.map(async (decade) => {
+    
+        for (let i = 0; i < DECADES.length; i++) {
+            const decade = DECADES[i];
             try {
-                const images = await aiService.editImage(getInitialPrompt(decade), originalImage.base64, originalImage.mimeType, '3:4');
+                const images = await aiService.editImage(PROMPTS_BY_DECADE[decade].initial, originalImage.base64, originalImage.mimeType, '3:4');
                 if (images.length > 0) {
                     setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
                 } else {
-                    throw new Error('Модель не вернула изображение.');
+                    throw new Error('Модель вернула пустой ответ.');
                 }
             } catch (err) {
                 handleError(err, `Ошибка генерации для ${decade}`);
-                setGeneratedImages(prev => ({ ...prev, [decade]: { ...prev[decade], isLoading: false } }));
+                setGeneratedImages(prev => {
+                    const updated = { ...prev };
+                    for (let j = i; j < DECADES.length; j++) {
+                        updated[DECADES[j]] = { url: null, isLoading: false };
+                    }
+                    return updated;
+                });
+                setIsGeneratingAll(false);
+                return; 
             }
-        });
-
-        await Promise.allSettled(promises);
+        }
+    
         setIsGeneratingAll(false);
     };
     
@@ -103,11 +138,11 @@ const TimeMachinePage: React.FC = () => {
         setGeneratedImages(prev => ({ ...prev, [decade]: { ...prev[decade], isLoading: true } }));
         setError(null);
         try {
-            const images = await aiService.editImage(getRegenPrompt(decade), originalImage.base64, originalImage.mimeType, '3:4');
+            const images = await aiService.editImage(PROMPTS_BY_DECADE[decade].regen, originalImage.base64, originalImage.mimeType, '3:4');
             if (images.length > 0) {
                 setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
             } else {
-                throw new Error('Модель не вернула изображение.');
+                throw new Error('Модель вернула пустой ответ.');
             }
         } catch (err) {
             handleError(err, `Ошибка перегенерации для ${decade}`);

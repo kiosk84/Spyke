@@ -58,7 +58,9 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
                                 {label}
                             </button>
                         ))}
-                        <UserDisplay />
+                        <button onClick={() => onNavigate('user')} className="transition-transform hover:scale-105">
+                          <UserDisplay />
+                        </button>
                     </nav>
 
                     {/* RIGHT: Mobile Burger Button */}
@@ -110,7 +112,9 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
                         </button>
                     ))}
                     <div className="pt-4 mt-2 border-t border-dark-tertiary/50 flex justify-center">
-                        <UserDisplay />
+                        <button onClick={() => { onNavigate('user'); setIsMenuOpen(false); }} className="transition-transform hover:scale-105">
+                          <UserDisplay />
+                        </button>
                     </div>
                 </nav>
             </aside>

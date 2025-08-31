@@ -1,14 +1,17 @@
 
 import { GoogleGenAI, Modality } from "@google/genai";
 import { ImageAspectRatio, Settings } from '../types';
-import { CHAT_SYSTEM_PROMPT } from '../constants';
+import { CHAT_SYSTEM_PROMPT, GOOGLE_API_KEY } from '../constants';
 
 const getAiClient = () => {
-    // API-ключ должен быть получен исключительно из переменных окружения.
-    if (!process.env.API_KEY) {
-        throw new Error("API-ключ Google не найден в переменных окружения.");
+    // Приоритет: 1. Ключ, предоставленный пользователем из localStorage, 2. Переменная окружения.
+    const userApiKey = localStorage.getItem(GOOGLE_API_KEY);
+    const apiKey = userApiKey || process.env.API_KEY;
+
+    if (!apiKey) {
+        throw new Error("API-ключ Google не найден. Пожалуйста, добавьте его на странице пользователя.");
     }
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    return new GoogleGenAI({ apiKey });
 };
 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {

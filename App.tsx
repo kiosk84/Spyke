@@ -14,6 +14,7 @@ import { Page } from './types';
 import { useTelegram } from './hooks/useTelegram';
 import LandingPage from './components/pages/LandingPage';
 import TimeMachinePage from './components/pages/TimeMachinePage';
+import UserPage from './components/pages/UserPage';
 
 const App: React.FC = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
@@ -57,6 +58,8 @@ const App: React.FC = () => {
         return <TimeMachinePage />;
       case 'settings':
         return <SettingsPage />;
+      case 'user':
+        return <UserPage />;
       default:
         return <LandingPage onNavigate={handleNavigate} />;
     }

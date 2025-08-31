@@ -5,23 +5,21 @@ import Loader from '../common/Loader';
 import * as aiService from '../../services/aiService';
 import MagicWandIcon from '../icons/MagicWandIcon';
 import ImageIcon from '../icons/ImageIcon';
-import EraserIcon from '../icons/EraserIcon';
-import BrushIcon from '../icons/BrushIcon';
 import TrashIcon from '../icons/TrashIcon';
+import { ImageAspectRatio } from '../../types';
+import ImageModal from '../ImageModal';
+import EnlargeIcon from '../icons/EnlargeIcon';
+import ArrowsRightLeftIcon from '../icons/ArrowsRightLeftIcon';
 import UserCircleIcon from '../icons/UserCircleIcon';
 import PaintBrushIcon from '../icons/PaintBrushIcon';
 import BrainIcon from '../icons/BrainIcon';
-import Squares2x2Icon from '../icons/Squares2x2Icon';
+import CameraIcon from '../icons/CameraIcon';
 import AnimeFaceIcon from '../icons/AnimeFaceIcon';
 import VintageCameraIcon from '../icons/VintageCameraIcon';
 import StarIcon from '../icons/StarIcon';
 import BoltIcon from '../icons/BoltIcon';
-import GlitchIcon from '../icons/GlitchIcon';
-import { ImageAspectRatio } from '../../types';
-import { ASPECT_RATIOS } from '../../constants';
-import SelectInput from '../common/SelectInput';
-import ImageModal from '../ImageModal';
-import EnlargeIcon from '../icons/EnlargeIcon';
+import SparkleIcon from '../icons/SparkleIcon';
+
 
 interface UploadedImage {
     file: File;
@@ -30,16 +28,27 @@ interface UploadedImage {
     mimeType: string;
 }
 
-const AVATAR_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the entire image into a soft, realistic digital painting. Keep the subject's likeness. The background should be a dreamy urban park at golden hour, painted in the same style. Mood should be modern and confident. Include a subtle "ART_IRBIT" logo. 8K, ultra-detailed.`;
-const OIL_PAINTING_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the provided photo into a timeless oil painting portrait. Render in a classical realist style with rich, textured brushwork and deep chiaroscuro. IMPORTANT: Strictly preserve the original's likeness and features. The background should be dark and softly blurred. Integrate "ART_IRBIT" as a subtle artist's signature.`;
-const NEON_MIND_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform into a futuristic cyberpunk portrait. Hyper-realistic face with neon augmentations (glowing eyes, iridescent hair, faint circuit patterns on skin). Dramatic cinematic lighting. Background: a rainy, futuristic cityscape at night with neon signs. Integrate "ART_IRBIT" as a neon sign. 8K, hyper-modern, edgy.`;
-const LOW_POLY_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the entire image into a geometric low-poly style. Use faceted planes, clean vector-like edges, and bold high-contrast colors. Apply dramatic chiaroscuro lighting. The background should also be a complementary low-poly design. Integrate "ART_IRBIT" logo as a small vector tag. Mood: mysterious, powerful.`;
-const ANIME_SOUL_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the entire image into a high-quality modern anime style, inspired by Makoto Shinkai. Give the subject luminous skin, large expressive eyes, and flowing hair. Use soft, cinematic golden-hour lighting. The background should be a dreamy anime scene (cherry blossoms or city at dusk). Subtly integrate "ART_IRBIT" as a holographic tag. Mood: serene, magical. 8K, ultra-detailed.`;
-const RETRO_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform into a vintage Hollywood glamour portrait (1950s film still). Use soft, dramatic Rembrandt lighting, warm golden tones, and subtle film grain. IMPORTANT: Strictly preserve the subject's original gender and facial features. The background should be a softly blurred vintage interior. Subtly integrate "ART_IRBIT" as an engraved plaque. Mood: sophisticated, timeless. 8K.`;
-const GTA_STYLE_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the provided photo into a stylized portrait in the iconic visual style of Grand Theft Auto (GTA) game covers — bold, cinematic, and urban. Render the subject as a central character in a high-stakes crime drama, standing confidently against a vibrant cityscape at night: neon-lit skyscrapers, palm trees, distant police lights, and glowing billboards. Use dramatic low-angle lighting with strong shadows and high contrast — deep blacks, electric pink and cyan highlights, and a slight lens flare for intensity. The subject is sharply dressed in urban streetwear: leather jacket, hoodie, aviator sunglasses (optional), or sleek suit — depending on original outfit, gently stylized to fit the GTA universe. Skin is realistic with subtle texture, hair has dynamic volume and shine. Expression: cool, confident, slightly dangerous — a smirk or intense gaze. Apply the signature GTA visual treatment: overlay a bold, angular title treatment in the background in the official GTA font (clean, sans-serif, with sharp edges and neon outline). Integrate the branding "ART_IRBIT" as part of the cityscape: a glowing neon sign on a rooftop, a digital billboard ad, or a graffiti tag on a wall — fully blended into the environment. Add subtle graphic elements: radial light lines, speed streaks, or a faint grid overlay (like a radar) to enhance the game UI aesthetic. Color grading: saturated, with teal-and-orange or magenta-and-cyan contrast, inspired by GTA V and Vice City. Style: video game cover art, cinematic urban portrait, hyper-stylized realism. Mood: powerful, rebellious, cinematic. Output: 8K resolution, ultra-detailed, aspect ratio 2:3, designed to look like an official GTA promotional artwork.`;
-const MYTHIC_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the entire image into a mythic cinematic portrait. The subject should look like a divine figure with glowing eyes and a radiant aura. Use dramatic, high-contrast lighting. The background must be an epic landscape, like a stormy sky or ancient ruins, matching the style. Integrate a subtle "ART_IRBIT" logo. Style: epic concept art, 8K.`;
-const GLITCH_ART_PROMPT = `Задача: отредактировать изображение. Вывод: только изображение, без текста. Transform the photo into a stylized glitch art portrait. Partially fragment the face with digital distortion, pixel displacement, and RGB color channel splitting, but keep the eyes and lips clear for contrast. Background: dark cyber grid or abstract digital void. Integrate "ART_IRBIT" as corrupted text. Style: edgy, futuristic, cyberpunk. 8K.`;
+const AVATAR_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a soft digital painting. CRITICAL: Perfectly preserve the person's original face and features. Background: simple blurred park at sunset. Add subtle "ART_IRBIT" watermark.`;
+const OIL_PAINTING_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a classical oil painting. CRITICAL: Perfectly preserve the person's original face and features. Use textured brushstrokes. Background: dark and simple. Add "ART_IRBIT" as a subtle artist signature.`;
+const NEON_MIND_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a cyberpunk portrait. CRITICAL: Perfectly preserve the person's original face and features. Add subtle neon highlights. Background: dark, rainy city with neon lights. Add "ART_IRBIT" as a small neon sign.`;
+const CINEMATIC_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a cinematic movie still. CRITICAL: Perfectly preserve the person's original face and features. Apply high-contrast, dramatic lighting and movie color grade. Add "ART_IRBIT" as a subtle watermark.`;
+const ANIME_SOUL_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a modern anime style. CRITICAL: The person's original face must be recognizable but adapted to the anime aesthetic. Background: simple anime scene. Add "ART_IRBIT" as a subtle logo.`;
+const RETRO_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a vintage 1950s photograph. CRITICAL: Perfectly preserve the person's original face, features, and gender. Apply soft focus, warm colors, and film grain. Add "ART_IRBIT" as a subtle watermark.`;
+const GTA_STYLE_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into the high-contrast art style of a GTA game cover. CRITICAL: Perfectly preserve the person's original face and features. Background: vibrant city scene. Add "ART_IRBIT" as subtle graffiti.`;
+const MYTHIC_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into an epic fantasy portrait. CRITICAL: Perfectly preserve the person's original face and features. Change clothing into detailed fantasy armor. Background: majestic landscape.`;
+const BEAUTY_PROMPT = `Task: edit image. Output: image only, no text. Perform a hyper-realistic beauty retouch. CRITICAL: Perfectly preserve and enhance the person's original face, do not change features. Give skin a flawless, natural glow. Apply subtle "no-makeup" makeup. Lighting: soft and flattering. Background: simple and blurred. Add "ART_IRBIT" as a subtle watermark.`;
 
+const styles = [
+    { label: "Аватар", prompt: AVATAR_PROMPT, Icon: UserCircleIcon },
+    { label: "Картина", prompt: OIL_PAINTING_PROMPT, Icon: PaintBrushIcon },
+    { label: "Киберпанк", prompt: NEON_MIND_PROMPT, Icon: BrainIcon },
+    { label: "Кино", prompt: CINEMATIC_PROMPT, Icon: CameraIcon },
+    { label: "Аниме", prompt: ANIME_SOUL_PROMPT, Icon: AnimeFaceIcon },
+    { label: "Ретро", prompt: RETRO_PROMPT, Icon: VintageCameraIcon },
+    { label: "GTA-стиль", prompt: GTA_STYLE_PROMPT, Icon: StarIcon },
+    { label: "Фэнтези", prompt: MYTHIC_PROMPT, Icon: BoltIcon },
+    { label: "Бьюти", prompt: BEAUTY_PROMPT, Icon: SparkleIcon }
+];
 
 const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, mimeType: string }> => {
     return new Promise((resolve, reject) => {
@@ -57,16 +66,17 @@ const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, m
     });
 };
 
-
 const EditorPage: React.FC = () => {
     const [originalImage, setOriginalImage] = useState<UploadedImage | null>(null);
     const [editedImage, setEditedImage] = useState<string | null>(null);
     const [prompt, setPrompt] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>('1:1');
+    const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>('3:4');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEnhancing, setIsEnhancing] = useState(false);
+    const [sliderPosition, setSliderPosition] = useState(50);
+    const [editHistory, setEditHistory] = useState<string[]>([]);
 
     const handleFileDrop = useCallback(async (files: FileList | null) => {
         if (!files || files.length === 0) return;
@@ -80,242 +90,242 @@ const EditorPage: React.FC = () => {
             setError('Размер файла не должен превышать 4 МБ.');
             return;
         }
-
         setError(null);
         setEditedImage(null);
+        setPrompt('');
+        setSliderPosition(50);
+        setEditHistory([]);
         try {
-            const { previewUrl, base64, mimeType } = await fileToData(file);
-            setOriginalImage({ file, previewUrl, base64, mimeType });
-        } catch (err) {
-            handleError(err);
+            const data = await fileToData(file);
+            setOriginalImage({ file, ...data });
+        } catch (err: any) {
+            setError(err.message || 'Ошибка при чтении файла.');
         }
     }, []);
 
-    const handleDragOver = (e: DragEvent<HTMLDivElement>) => e.preventDefault();
-    const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        handleFileDrop(e.dataTransfer.files);
-    };
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => handleFileDrop(e.target.files);
-
-    const handleRemoveImage = () => {
+    const handleRemoveImage = useCallback(() => {
+        if (originalImage) {
+            URL.revokeObjectURL(originalImage.previewUrl);
+        }
         setOriginalImage(null);
         setEditedImage(null);
-        setPrompt('');
         setError(null);
-    };
+        setEditHistory([]);
+    }, [originalImage]);
 
-    const handleError = (err: any) => {
-        const message = err instanceof Error ? err.message : 'Произошла неизвестная ошибка.';
-        setError(message);
-    };
+    const handleEdit = useCallback(async (finalPrompt: string) => {
+        const imageToEdit = editedImage || originalImage?.base64;
+        const mimeTypeToEdit = originalImage?.mimeType;
 
-    const handleGenerate = async (generationPrompt: string) => {
-        if (!originalImage || !generationPrompt.trim()) {
-            setError('Загрузите изображение и предоставьте промпт для начала.');
+        if (!imageToEdit || !mimeTypeToEdit) {
+            setError('Сначала загрузите изображение.');
             return;
         }
         setIsLoading(true);
         setError(null);
-        setEditedImage(null);
-
+        
         try {
-            const images = await aiService.editImage(generationPrompt, originalImage.base64, originalImage.mimeType, aspectRatio);
-            if (images.length > 0) {
-                setEditedImage(images[0]);
+            const images = await aiService.editImage(finalPrompt, imageToEdit.split(',').pop() || imageToEdit, mimeTypeToEdit, aspectRatio);
+            if (images && images.length > 0) {
+                const newImage = images[0];
+                setEditedImage(newImage);
+                setEditHistory(prev => [...prev, newImage]);
+                setSliderPosition(100);
             } else {
                 throw new Error('Модель не вернула изображение.');
             }
-        } catch (err) {
-            handleError(err);
+        } catch (err: any) {
+            setError(err instanceof Error ? err.message : 'Не удалось отредактировать изображение.');
         } finally {
             setIsLoading(false);
         }
-    };
-    
-    const handleCustomGenerate = async () => {
-        if (!prompt.trim() || !originalImage) {
-            setError('Загрузите изображение и введите свой вариант промпта.');
-            return;
-        }
-        
+    }, [originalImage, editedImage, aspectRatio]);
+
+    const handlePresetClick = useCallback((presetPrompt: string) => {
+        setPrompt(''); 
+        handleEdit(presetPrompt);
+    }, [handleEdit]);
+
+    const handleCustomPromptEnhance = useCallback(async () => {
+        if (!prompt.trim() || !originalImage) return;
         setIsEnhancing(true);
         setError(null);
-        setEditedImage(null);
-
         try {
-            // Этап 1: Улучшение промпта
-            const enhancedPrompt = await aiService.enhanceCustomPrompt(prompt);
-            
-            // Этап 2: Редактирование изображения с улучшенным промптом
-            await handleGenerate(enhancedPrompt);
-
-        } catch (err) {
-            handleError(err);
+            const enhanced = await aiService.enhanceCustomPrompt(prompt);
+            setPrompt(enhanced);
+            await handleEdit(enhanced);
+        } catch (err: any) {
+            setError(err instanceof Error ? err.message : 'Ошибка улучшения промпта.');
         } finally {
             setIsEnhancing(false);
         }
-    };
-
-    const ImageUploader = () => (
-         <div 
-          className="relative w-full h-full min-h-[400px] border-2 border-dashed border-gray-600 rounded-lg p-6 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-        >
-            <input
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={handleFileChange}
-            />
-            <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-lg text-light-secondary">
-                <span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите изображение
-            </p>
-            <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
-        </div>
-    );
+    }, [prompt, originalImage, handleEdit]);
     
-    const ToolButton: React.FC<{ Icon: React.ElementType, label: string, disabled?: boolean }> = ({ Icon, label, disabled = false }) => (
-        <button
-            disabled={disabled}
-            className="flex flex-col items-center gap-2 p-3 bg-dark-tertiary rounded-lg text-light-secondary hover:bg-opacity-80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group relative"
-            title="Функция в разработке"
-        >
-            <Icon className="w-6 h-6" />
-            <span className="text-xs">{label}</span>
+    const HistoryThumbnail = ({ src, onClick }: { src: string; onClick: () => void }) => (
+        <button onClick={onClick} className="w-16 h-20 rounded-md overflow-hidden focus:outline-none focus:ring-2 ring-brand-cyan ring-offset-2 ring-offset-dark-secondary">
+            <img src={src} alt="Edit history" className="w-full h-full object-cover"/>
         </button>
     );
 
     return (
-        <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Control Panel */}
-                <div className="lg:col-span-1 bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50 space-y-6 self-start">
-                    <h1 className="text-2xl font-bold text-light-primary font-display border-b-2 border-brand-cyan/20 pb-3">Редактор Изображений</h1>
-                    {!originalImage && <p className="text-light-secondary">Загрузите изображение, чтобы увидеть опции редактирования.</p>}
-                    {originalImage && (
-                        <div className="space-y-6 animate-fade-in">
-                            
-                            {/* Output Settings */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-light-primary mb-3">Настройки вывода</h2>
-                                <SelectInput 
-                                    label="Соотношение сторон" 
-                                    name="aspectRatio" 
-                                    options={ASPECT_RATIOS} 
-                                    value={aspectRatio} 
-                                    onChange={(e) => setAspectRatio(e.target.value as ImageAspectRatio)} 
-                                />
-                                <p className="text-xs text-light-secondary/60 mt-1">Модель постарается соблюсти пропорции, но результат не гарантирован.</p>
-                            </div>
+    <div className="space-y-8">
+        <div className="text-center">
+            <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta font-display">
+                AI Редактор Изображений
+            </h1>
+            <p className="text-light-secondary max-w-2xl mx-auto">
+                Загрузите фото и преобразите его с помощью AI. Применяйте готовые стили или создавайте свои собственные.
+            </p>
+        </div>
 
-                            {/* Quick Styles Section */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-light-primary mb-3">Быстрые стили</h2>
-                                <div className="grid grid-cols-3 gap-3">
-                                    <Button onClick={() => handleGenerate(AVATAR_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={UserCircleIcon}>Аватар</Button>
-                                    <Button onClick={() => handleGenerate(OIL_PAINTING_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={PaintBrushIcon}>Масло</Button>
-                                    <Button onClick={() => handleGenerate(NEON_MIND_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={BrainIcon}>Neon Mind</Button>
-                                    <Button onClick={() => handleGenerate(LOW_POLY_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={Squares2x2Icon}>Лоу-поли</Button>
-                                    <Button onClick={() => handleGenerate(ANIME_SOUL_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={AnimeFaceIcon}>Anime Soul</Button>
-                                    <Button onClick={() => handleGenerate(RETRO_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={VintageCameraIcon}>Retro</Button>
-                                    <Button onClick={() => handleGenerate(GTA_STYLE_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={StarIcon}>GTA Style</Button>
-                                    <Button onClick={() => handleGenerate(MYTHIC_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={BoltIcon}>Мифический</Button>
-                                    <Button onClick={() => handleGenerate(GLITCH_ART_PROMPT)} isLoading={isLoading} className="w-full text-sm flex-col h-20 gap-1" Icon={GlitchIcon}>Glitch Art</Button>
-                                </div>
-                            </div>
-
-                            {/* Separator */}
-                            <div className="flex items-center text-center !my-8">
-                                <div className="flex-grow border-t border-dark-tertiary"></div>
-                                <span className="flex-shrink mx-4 text-light-secondary text-sm font-semibold">ИЛИ</span>
-                                <div className="flex-grow border-t border-dark-tertiary"></div>
-                            </div>
-
-                            {/* Custom Prompt Section */}
-                            <div className="space-y-4">
-                                <div>
-                                    <label htmlFor="prompt" className="block text-sm font-medium text-light-secondary mb-1">Свой вариант (на русском)</label>
-                                    <textarea id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Например: Добавь коту футуристический шлем" className="w-full h-24 bg-dark-tertiary border border-gray-600 text-light-primary rounded-lg focus:ring-brand-cyan focus:border-brand-cyan block p-2.5 transition duration-200 resize-none" />
-                                </div>
-                                <Button 
-                                    onClick={handleCustomGenerate} 
-                                    isLoading={isEnhancing} 
-                                    disabled={!prompt.trim() || isEnhancing} 
-                                    className="w-full text-lg" 
-                                    Icon={MagicWandIcon} 
-                                    variant="secondary"
-                                >
-                                    Применить
-                                </Button>
-                            </div>
-                            
-                            {/* Tools Section (kept for future) */}
-                            <div className="!mt-8 pt-6 border-t border-dark-tertiary/50">
-                                <h2 className="text-lg font-semibold text-light-primary mb-2">Инструменты (в разработке)</h2>
-                                <div className="grid grid-cols-3 gap-2">
-                                    <ToolButton Icon={EraserIcon} label="Удалить фон" disabled/>
-                                    <ToolButton Icon={BrushIcon} label="Маска" disabled/>
-                                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-7">
+                {originalImage && (
+                    <div className="bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50 space-y-6 animate-fade-in">
+                        <div>
+                            <h2 className="text-xl font-bold text-light-primary mb-3 font-display">Применить стиль</h2>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {styles.map((style) => (
+                                    <Button
+                                        key={style.label}
+                                        onClick={() => handlePresetClick(style.prompt)}
+                                        disabled={isLoading || isEnhancing}
+                                        Icon={style.Icon}
+                                        variant="secondary"
+                                        className="w-full justify-start text-base py-3"
+                                    >
+                                        {style.label}
+                                    </Button>
+                                ))}
                             </div>
                         </div>
-                    )}
-                    {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center text-sm">{error}</div>}
-                </div>
+                        <div className="flex items-center text-center">
+                            <div className="flex-grow border-t border-dark-tertiary"></div>
+                            <span className="flex-shrink mx-4 text-light-secondary text-sm">ИЛИ</span>
+                            <div className="flex-grow border-t border-dark-tertiary"></div>
+                        </div>
+                        <div className="space-y-3">
+                            <h2 className="text-xl font-bold text-light-primary font-display">Свой промт</h2>
+                             <p className="text-sm text-light-secondary/70">
+                                Загружайте свои изображения, объединяйте их и меняйте так же легко, как общаетесь в чате. Каждый новый запрос продолжает изменять текущее изображение.
+                            </p>
+                            <textarea
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                placeholder="Например: сделай волосы синими"
+                                className="w-full h-24 bg-dark-tertiary border border-gray-600 text-light-primary rounded-lg focus:ring-brand-cyan focus:border-brand-cyan block p-2.5 transition duration-200 resize-none"
+                                disabled={isLoading || isEnhancing}
+                            />
+                            <Button
+                                onClick={handleCustomPromptEnhance}
+                                isLoading={isEnhancing}
+                                disabled={!prompt.trim() || isLoading}
+                                className="w-full"
+                                Icon={MagicWandIcon}
+                            >
+                                Улучшить и применить
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-                {/* Image Display */}
-                <div className="lg:col-span-2 bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50">
-                    <div className="w-full aspect-square bg-dark-tertiary rounded-lg flex items-center justify-center relative overflow-hidden">
-                        {!originalImage ? <ImageUploader /> : (
-                            <div className="w-full h-full relative">
-                                {editedImage ? (
-                                    <div className="flex flex-col md:flex-row w-full h-full gap-2 p-2">
-                                        <div className="relative flex flex-1 flex-col items-center justify-center min-h-0 bg-black/20 rounded-lg">
-                                            <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full z-10">Оригинал</span>
-                                            <img src={originalImage.previewUrl} alt="Оригинал" className="object-contain w-full h-full" />
+            <div className="lg:col-span-5">
+                {!originalImage ? (
+                    <div 
+                        className="relative w-full h-full min-h-[400px] lg:min-h-full border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
+                        onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
+                        onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
+                    >
+                        <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
+                        <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
+                        <p className="text-lg text-light-secondary"><span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите</p>
+                        <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
+                    </div>
+                ) : (
+                    <div className="sticky top-24">
+                        <div className="relative w-full mx-auto group">
+                            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg shadow-lg bg-dark-tertiary">
+                                <img src={originalImage.previewUrl} alt="Original" className="absolute inset-0 w-full h-full object-cover select-none"/>
+
+                                {isLoading ? (
+                                    <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-center backdrop-blur-sm">
+                                        <Loader size="lg" />
+                                        <p className="mt-4 text-light-secondary">Применяем магию...</p>
+                                    </div>
+                                ) : editedImage ? (
+                                    <>
+                                        <div className="absolute inset-0 w-full h-full select-none">
+                                            <img
+                                                src={editedImage}
+                                                alt="Edited"
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+                                            />
                                         </div>
-                                        <div 
-                                            className="relative flex flex-1 flex-col items-center justify-center min-h-0 bg-black/20 rounded-lg group cursor-pointer"
-                                            onClick={() => editedImage && setIsModalOpen(true)}
-                                            role="button"
-                                            aria-label="Увеличить результат"
+                                        
+                                        <div
+                                            className="absolute top-0 bottom-0 w-1 bg-white/80 cursor-ew-resize pointer-events-none"
+                                            style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
                                         >
-                                            <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full z-10">Результат</span>
-                                            <img src={editedImage} alt="Отредактированное" className="object-contain w-full h-full group-hover:opacity-80 transition-opacity" />
-                                             <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <EnlargeIcon className="w-12 h-12 text-white" />
+                                            <div className="absolute top-1/2 -translate-y-1/2 -left-4 w-9 h-9 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm text-dark-primary">
+                                               <ArrowsRightLeftIcon className="w-5 h-5" />
                                             </div>
                                         </div>
-                                    </div>
+                                        
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100"
+                                            value={sliderPosition}
+                                            onChange={(e) => setSliderPosition(Number(e.target.value))}
+                                            className="absolute inset-0 w-full h-full cursor-ew-resize opacity-0"
+                                            aria-label="Image comparison slider"
+                                        />
+
+                                        <button onClick={() => setIsModalOpen(true)} className="absolute bottom-4 right-4 p-3 bg-white/20 rounded-full text-white backdrop-blur-sm hover:bg-white/30 transition-colors" aria-label="Увеличить">
+                                            <EnlargeIcon className="w-6 h-6" />
+                                        </button>
+                                    </>
                                 ) : (
-                                    <img src={originalImage.previewUrl} alt="Оригинал" className={`object-contain w-full h-full transition-opacity duration-500 ${isLoading || isEnhancing ? 'opacity-30' : 'opacity-100'}`} />
-                                )}
-                                
-                                <button onClick={handleRemoveImage} className="absolute top-3 right-3 p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-transform hover:scale-110 z-10" aria-label="Удалить изображение">
-                                    <TrashIcon className="w-5 h-5"/>
-                                </button>
-                                {(isLoading || isEnhancing) && (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm z-20">
-                                        <Loader size="lg" />
-                                        <p className="mt-4 text-light-primary">{isEnhancing ? 'Улучшение промпта...' : 'Магия в процессе...'}</p>
+                                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4">
+                                        <span className="absolute top-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">Оригинал</span>
+                                        <p className="text-light-secondary text-center">Выберите стиль, чтобы начать редактирование</p>
                                     </div>
                                 )}
                             </div>
-                        )}
+                             <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-transform hover:scale-110" aria-label="Удалить изображение">
+                                <TrashIcon className="w-4 h-4"/>
+                            </button>
+                        </div>
                     </div>
+                )}
+            </div>
+        </div>
+        
+        {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center mt-4 max-w-3xl mx-auto">{error}</div>}
+        
+        {editHistory.length > 0 && (
+            <div className="space-y-4">
+                 <h2 className="text-xl font-bold text-light-primary font-display text-center">История проекта</h2>
+                <div className="flex justify-center items-center gap-4 flex-wrap bg-dark-secondary p-4 rounded-xl border border-dark-tertiary/50">
+                   <HistoryThumbnail src={originalImage!.previewUrl} onClick={() => setEditedImage(null)} />
+                   {editHistory.map((imgSrc, index) => (
+                       <HistoryThumbnail key={index} src={imgSrc} onClick={() => setEditedImage(imgSrc)} />
+                   ))}
                 </div>
             </div>
-             {editedImage && isModalOpen && (
-                <ImageModal
-                    images={[editedImage]}
-                    currentIndex={0}
-                    onClose={() => setIsModalOpen(false)}
-                    onNavigate={() => {}} // No navigation needed for a single image
-                />
-            )}
-        </>
+        )}
+
+        {isModalOpen && editedImage && (
+            <ImageModal
+                images={[editedImage]}
+                currentIndex={0}
+                onClose={() => setIsModalOpen(false)}
+                onNavigate={() => {}}
+            />
+        )}
+    </div>
     );
 };
 
