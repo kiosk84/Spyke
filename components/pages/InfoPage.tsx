@@ -4,24 +4,64 @@ const InfoPage: React.FC = () => {
   return (
     <div className="bg-dark-secondary p-8 rounded-2xl shadow-lg border border-dark-tertiary/50 max-w-4xl mx-auto text-light-primary">
       <h1 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta font-display">
-        О проекте «EXPERT»
+        О проекте «AI EXPERT»
       </h1>
-      <div className="space-y-4 text-light-secondary">
-        <p>
-          Добро пожаловать в «EXPERT» — ваш персональный инструмент для разжигания творчества с помощью искусственного интеллекта. Наше приложение создано, чтобы помочь вам легко и быстро создавать высококачественные промпты для генерации изображений и воплощать ваши самые смелые идеи в жизнь.
+      <div className="space-y-6 text-light-secondary">
+        <p className="text-lg">
+          Добро пожаловать в «AI EXPERT» — вашу персональную творческую студию на базе искусственного интеллекта. Это приложение создано, чтобы помочь вам легко и быстро воплощать самые смелые визуальные идеи в жизнь, используя мощь передовых моделей от Google.
         </p>
-        <p>
-          Мы используем мощь передовых моделей Google — Gemini для интеллектуального улучшения ваших текстовых идей и Imagen для их визуализации. Просто опишите свою концепцию, выберите стиль, освещение и другие параметры, и «EXPERT» превратит это в детализированный промпт, готовый к генерации шедевра.
-        </p>
-        <h2 className="text-2xl font-semibold text-light-primary pt-4 font-display">Как это работает?</h2>
-        <ol className="list-decimal list-inside space-y-2">
-          <li><strong>Опишите идею:</strong> Введите основную мысль вашего будущего изображения на русском языке.</li>
-          <li><strong>Настройте детали:</strong> Выберите из множества вариантов художественного стиля, освещения, ракурса и настроения.</li>
-          <li><strong>Улучшите промпт:</strong> Нажмите кнопку «Улучшить промпт», и наш ИИ-ассистент создаст для вас профессиональный, детализированный запрос на английском языке.</li>
-          <li><strong>Создайте изображение:</strong> Нажмите «Создать изображение» и наблюдайте, как ваша идея превращается в уникальное визуальное произведение.</li>
-        </ol>
-         <p className="pt-4">
-          «EXPERT» создан для художников, дизайнеров, маркетологов и всех, кто хочет исследовать безграничные возможности генеративного искусства. Экспериментируйте, творите и делитесь своими результатами!
+        
+        <div className="bg-dark-tertiary border border-brand-cyan/30 rounded-lg p-4">
+            <h2 className="text-2xl font-semibold text-light-primary font-display mb-2">С чего начать?</h2>
+            <p>
+                Для работы приложения требуется ваш личный API-ключ от Google.
+            </p>
+            <ol className="list-decimal list-inside space-y-1 mt-2">
+                <li>Получите ваш бесплатный ключ в <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-brand-cyan font-semibold hover:underline">Google AI Studio</a>.</li>
+                <li>Перейдите на страницу «Пользователь» (иконка в правом верхнем углу).</li>
+                <li>Вставьте и сохраните ваш ключ.</li>
+            </ol>
+             <p className="text-xs mt-3 text-light-secondary/70">
+                Ваш ключ хранится безопасно только в вашем браузере и никуда не передаётся.
+            </p>
+        </div>
+
+        <h2 className="text-2xl font-semibold text-light-primary pt-4 font-display">Наши Инструменты</h2>
+        
+        <div className="space-y-4">
+            <div>
+                <h3 className="text-xl font-bold text-light-primary">Генератор Изображений</h3>
+                <p>Превратите любую идею в уникальное изображение. Наш генератор работает в два этапа:</p>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li><strong>Из текста:</strong> Опишите вашу концепцию на русском, и AI (Gemini 2.5 Flash) создаст детализированный промпт на английском.</li>
+                    <li><strong>Из изображения:</strong> Загрузите картинку, и AI проанализирует её, создав профессиональный промпт для воссоздания стиля.</li>
+                    <li><strong>Визуализация:</strong> Модель Imagen 4.0 сгенерирует высококачественное изображение на основе полученного промпта.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 className="text-xl font-bold text-light-primary">AI Редактор</h3>
+                <p>Загрузите фотографию и преобразите её! Редактор позволяет:</p>
+                 <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li><strong>Применять готовые стили:</strong> Превратите фото в аватар, картину маслом, постер в стиле GTA или кадр из аниме одним нажатием.</li>
+                    <li><strong>Редактировать текстом:</strong> Давайте команды на естественном языке («сделай волосы синими», «добавь неоновые огни»), и AI (Gemini Flash Image Preview) будет итеративно изменять изображение.</li>
+                    <li><strong>Сравнивать результат:</strong> Используйте удобный слайдер для сравнения «до» и «после».</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 className="text-xl font-bold text-light-primary">Машина Времени</h3>
+                <p>Отправьтесь в путешествие по прошлому! Загрузите свой портрет и посмотрите, как бы вы выглядели в разные десятилетия — от винтажных 50-х до ярких 2000-х.</p>
+            </div>
+            
+            <div>
+                <h3 className="text-xl font-bold text-light-primary">Чат с AI</h3>
+                <p>Наш интеллектуальный ассистент на базе Gemini всегда готов помочь. Задавайте вопросы, просите совета, ищите вдохновение или просто общайтесь.</p>
+            </div>
+        </div>
+
+        <p className="pt-4 text-lg">
+          «EXPERT» — это ваш проводник в мир безграничных возможностей генеративного искусства. Экспериментируйте, творите и открывайте новые горизонты!
         </p>
       </div>
     </div>

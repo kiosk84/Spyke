@@ -38,34 +38,34 @@ const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, m
 
 const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
-// Prompts are simplified to be more direct and reliable.
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as a 1950s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1950s style. Make it look like old color film.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a classic 1950s black and white portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1950s style.`
+        initial: `Recreate this photo as a 1950s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1950s style. Make it look like old color film.`,
+        regen: `Recreate this photo as a classic 1950s black and white portrait. Keep the person's face, features, and gender the same. Change clothes and hair to 1950s style.`
     },
     '1960s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as a 1960s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1960s style. Give it a vintage film look.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a casual 1960s color snapshot. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a relaxed 1960s style.`
+        initial: `Recreate this photo as a 1960s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1960s style. Give it a vintage film look.`,
+        regen: `Recreate this photo as a casual 1960s color snapshot. Keep the person's face, features, and gender the same. Change clothes and hair to a relaxed 1960s style.`
     },
     '1970s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as a 1970s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1970s style. Use slightly faded, warm colors.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a 1970s disco-style portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a flashy 1970s disco style.`
+        initial: `Recreate this photo as a 1970s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1970s style. Use slightly faded, warm colors.`,
+        regen: `Recreate this photo as a 1970s disco-style portrait. Keep the person's face, features, and gender the same. Change clothes and hair to a flashy 1970s disco style.`
     },
     '1980s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as a 1980s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1980s style. Use bright, vibrant colors.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a stylish 1980s portrait with neon colors. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a fashionable 1980s style.`
+        initial: `Recreate this photo as a 1980s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1980s style. Use bright, vibrant colors.`,
+        regen: `Recreate this photo as a stylish 1980s portrait with neon colors. Keep the person's face, features, and gender the same. Change clothes and hair to a fashionable 1980s style.`
     },
     '1990s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as a 1990s color picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to 1990s style. Make it look like a 35mm film photo.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a bright, clean 1990s portrait. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a popular 1990s style.`
+        initial: `Recreate this photo as a 1990s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1990s style. Make it look like a 35mm film photo.`,
+        regen: `Recreate this photo as a bright, clean 1990s portrait. Keep the person's face, features, and gender the same. Change clothes and hair to a popular 1990s style.`
     },
     '2000s': {
-        initial: `Task: edit image. Output: image only. Recreate photo as if taken with an early 2000s digital camera. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to early 2000s style. Use a direct flash effect.`,
-        regen: `Task: edit image. Output: image only. Recreate photo as a casual mid-2000s picture. CRITICAL: Perfectly preserve the person's face, features, and gender. Change clothes and hair to a popular mid-2000s style.`
+        initial: `Recreate this photo as if taken with an early 2000s digital camera. Keep the person's face, features, and gender the same. Change clothes and hair to early 2000s style. Use a direct flash effect.`,
+        regen: `Recreate this photo as a casual mid-2000s picture. Keep the person's face, features, and gender the same. Change clothes and hair to a popular mid-2000s style.`
     },
 };
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 const TimeMachinePage: React.FC = () => {
     const [originalImage, setOriginalImage] = useState<UploadedImage | null>(null);
@@ -128,6 +128,11 @@ const TimeMachinePage: React.FC = () => {
                 setIsGeneratingAll(false);
                 return; 
             }
+
+            // Add a delay between requests to avoid rate limiting
+            if (i < DECADES.length - 1) {
+                await delay(61000); // 61-second delay
+            }
         }
     
         setIsGeneratingAll(false);
@@ -159,8 +164,8 @@ const TimeMachinePage: React.FC = () => {
     const ImageUploader = () => (
          <div 
           className="relative w-full max-w-lg mx-auto border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
-          onDrop={(e) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
-          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
+          onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
         >
             <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
             <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />

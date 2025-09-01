@@ -28,15 +28,15 @@ interface UploadedImage {
     mimeType: string;
 }
 
-const AVATAR_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a soft digital painting. CRITICAL: Perfectly preserve the person's original face and features. Background: simple blurred park at sunset. Add subtle "ART_IRBIT" watermark.`;
-const OIL_PAINTING_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a classical oil painting. CRITICAL: Perfectly preserve the person's original face and features. Use textured brushstrokes. Background: dark and simple. Add "ART_IRBIT" as a subtle artist signature.`;
-const NEON_MIND_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a cyberpunk portrait. CRITICAL: Perfectly preserve the person's original face and features. Add subtle neon highlights. Background: dark, rainy city with neon lights. Add "ART_IRBIT" as a small neon sign.`;
-const CINEMATIC_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a cinematic movie still. CRITICAL: Perfectly preserve the person's original face and features. Apply high-contrast, dramatic lighting and movie color grade. Add "ART_IRBIT" as a subtle watermark.`;
-const ANIME_SOUL_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a modern anime style. CRITICAL: The person's original face must be recognizable but adapted to the anime aesthetic. Background: simple anime scene. Add "ART_IRBIT" as a subtle logo.`;
-const RETRO_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into a vintage 1950s photograph. CRITICAL: Perfectly preserve the person's original face, features, and gender. Apply soft focus, warm colors, and film grain. Add "ART_IRBIT" as a subtle watermark.`;
-const GTA_STYLE_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into the high-contrast art style of a GTA game cover. CRITICAL: Perfectly preserve the person's original face and features. Background: vibrant city scene. Add "ART_IRBIT" as subtle graffiti.`;
-const MYTHIC_PROMPT = `Task: edit image. Output: image only, no text. Transform photo into an epic fantasy portrait. CRITICAL: Perfectly preserve the person's original face and features. Change clothing into detailed fantasy armor. Background: majestic landscape.`;
-const BEAUTY_PROMPT = `Task: edit image. Output: image only, no text. Perform a hyper-realistic beauty retouch. CRITICAL: Perfectly preserve and enhance the person's original face, do not change features. Give skin a flawless, natural glow. Apply subtle "no-makeup" makeup. Lighting: soft and flattering. Background: simple and blurred. Add "ART_IRBIT" as a subtle watermark.`;
+const AVATAR_PROMPT = `Turn the photo into a soft digital painting. Keep the person's face and features identical. The background should be a simple blurred park at sunset.`;
+const OIL_PAINTING_PROMPT = `Turn the photo into a classical oil painting with textured brushstrokes. Keep the person's face and features identical. The background should be dark and simple.`;
+const NEON_MIND_PROMPT = `Turn the photo into a cyberpunk portrait with subtle neon highlights on the person. Keep the person's face and features identical. The background should be a dark, rainy city with neon lights.`;
+const CINEMATIC_PROMPT = `Turn the photo into a cinematic movie still. Keep the person's face and features identical. Apply high-contrast, dramatic lighting and a movie-style color grade.`;
+const ANIME_SOUL_PROMPT = `Redraw the photo in a modern anime style. Make the person's face recognizable, but adapt it to the anime aesthetic. The background should be a simple anime scene.`;
+const RETRO_PROMPT = `Turn the photo into a vintage 1950s photograph. Keep the person's face, features, and gender identical. Apply soft focus, warm colors, and a film grain effect.`;
+const GTA_STYLE_PROMPT = `Recreate this photo in the iconic Grand Theft Auto (GTA) cover art style. The person should be the main character. The background should be a neon-lit city at night with a magenta-orange sunset glow. The style should be hyper-stylized realism with strong shadows and saturated colors. Add the text "ART_IRBIT" as a neon sign on a building in the background.`;
+const MYTHIC_PROMPT = `Turn the photo into an epic fantasy portrait. Keep the person's face and features identical. Change the clothing into detailed fantasy armor. The background should be a majestic, fantastical landscape.`;
+const BEAUTY_PROMPT = `Perform a hyper-realistic beauty retouch on the photo. Enhance the person's features naturally, do not change them. Give the skin a flawless, glowing look and apply subtle "no-makeup" style makeup. The lighting should be soft and flattering, and the background should be simple and blurred.`;
 
 const styles = [
     { label: "Аватар", prompt: AVATAR_PROMPT, Icon: UserCircleIcon },

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Modality } from "@google/genai";
 import { ImageAspectRatio, Settings } from '../types';
 import { CHAT_SYSTEM_PROMPT, GOOGLE_API_KEY } from '../constants';
@@ -19,9 +18,10 @@ export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'asp
     const model = 'gemini-2.5-flash';
     const metaPrompt = `
 You are an expert prompt engineer for AI image generation.
-Create a single, highly-detailed, professional, and artistically rich prompt in English.
-The final output must be a comma-separated list of keywords, concepts, and stylistic descriptors.
-Do not add any conversational text or explanations.
+Your task is to synthesize the user's request into a single, coherent, and vivid paragraph in English. This paragraph will be used as a prompt.
+Combine the core idea with the specified style, lighting, angle, and mood to create a rich scene description.
+Do not just list the keywords. Weave them into a descriptive narrative.
+Do not add any conversational text, explanations, or headings. Only output the final prompt.
 
 ---
 USER'S REQUEST DETAILS:
@@ -30,9 +30,9 @@ USER'S REQUEST DETAILS:
 - Lighting: ${settings.lighting}
 - Camera Angle: ${settings.angle}
 - Mood: ${settings.mood}
-- Negative Prompt (avoid these): ${settings.negativePrompt}
+- Negative Prompt (what to avoid): ${settings.negativePrompt}
 ---
-Generate the prompt.
+Generate the single-paragraph prompt now.
 `;
     try {
         const response = await ai.models.generateContent({
@@ -196,17 +196,19 @@ export const enhanceCustomPrompt = async (userPrompt: string): Promise<string> =
     const ai = getAiClient();
     const model = 'gemini-2.5-flash';
     const metaPrompt = `
-You are an expert prompt engineer for an AI image editing model. Your task is to take a user's simple idea, written in Russian, and convert it into a detailed, professional, and artistically rich prompt in English.
+You are an expert prompt engineer for an AI image editing model. Your task is to take a user's simple idea from Russian and convert it into a clear, direct instruction in English.
 
-The final output MUST start with the exact phrase "Задача: отредактировать изображение. Вывод: только изображение, без текста." followed by the detailed English prompt.
-Do not add any other conversational text or explanations. The output should be a single, cohesive instruction for the image editing AI.
-The prompt should be creative and expand on the user's idea, adding stylistic details.
+The output must be a single, direct command for the AI. Do not add conversational text, explanations, or quotes. The instruction should be simple and focused on the requested change.
+
+Example:
+User's Idea: "сделай волосы синими и добавь очки"
+Your output: Change the hair to blue and add glasses.
 
 ---
 USER'S IDEA (in Russian): "${userPrompt}"
 ---
 
-Generate the complete, final prompt in English now.
+Generate the English instruction now.
 `;
     try {
         const response = await ai.models.generateContent({
