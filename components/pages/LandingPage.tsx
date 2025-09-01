@@ -5,6 +5,7 @@ import RobotIcon from '../icons/RobotIcon';
 import ImageIcon from '../icons/ImageIcon';
 import MagicWandIcon from '../icons/MagicWandIcon';
 import ClockIcon from '../icons/ClockIcon';
+import BookOpenIcon from '../icons/BookOpenIcon';
 
 interface LandingPageProps {
   onNavigate: (page: Page) => void;
@@ -18,14 +19,14 @@ const FeatureCard: React.FC<{
 }> = ({ title, description, Icon, onClick }) => (
   <button
     onClick={onClick}
-    className="bg-dark-secondary/50 backdrop-blur-md border border-dark-tertiary/50 p-8 rounded-2xl w-full max-w-sm text-left flex flex-col items-start transition-all duration-300 transform hover:scale-105 hover:border-brand-cyan/50 hover:shadow-glow-cyan focus:outline-none focus:ring-2 focus:ring-brand-cyan"
+    className="bg-dark-secondary/50 backdrop-blur-md border border-dark-tertiary/50 p-6 rounded-2xl w-full text-left flex flex-col items-start transition-all duration-300 transform hover:scale-105 hover:border-brand-cyan/50 hover:shadow-glow-cyan focus:outline-none focus:ring-2 focus:ring-brand-cyan"
   >
     <div className="p-3 bg-dark-tertiary rounded-full mb-4">
       <Icon className="w-8 h-8 text-brand-cyan" />
     </div>
-    <h2 className="text-2xl font-bold font-display text-white mb-2">{title}</h2>
-    <p className="text-light-secondary flex-grow">{description}</p>
-    <span className="mt-6 text-brand-cyan font-semibold">Перейти →</span>
+    <h2 className="text-xl font-bold font-display text-white mb-2">{title}</h2>
+    <p className="text-light-secondary flex-grow text-sm">{description}</p>
+    <span className="mt-4 text-brand-cyan font-semibold text-sm">Перейти →</span>
   </button>
 );
 
@@ -44,7 +45,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           <button onClick={() => onNavigate('user')} className="text-brand-cyan font-semibold hover:underline ml-1">профиле пользователя</button>.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
         <FeatureCard
           title="Чат с AI"
           description="Задавайте вопросы, получайте помощь и общайтесь с продвинутым AI-ассистентом."
@@ -52,13 +53,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           onClick={() => onNavigate('chat')}
         />
         <FeatureCard
-          title="Генератор Изображений"
+          title="Генератор"
           description="Создавайте уникальные изображения из текстовых описаний с помощью передовых моделей."
           Icon={ImageIcon}
           onClick={() => onNavigate('generator')}
         />
         <FeatureCard
-          title="Редактор Изображений"
+          title="Редактор"
           description="Редактируйте и стилизуйте ваши фотографии, применяя креативные AI-фильтры."
           Icon={MagicWandIcon}
           onClick={() => onNavigate('editor')}
@@ -68,6 +69,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           description="Отправьте своё фото в прошлое и посмотрите, как бы вы выглядели в разные десятилетия."
           Icon={ClockIcon}
           onClick={() => onNavigate('timeMachine')}
+        />
+        <FeatureCard
+          title="Библиотека"
+          description="Используйте готовые профессиональные промпты для любых задач и вдохновляйтесь."
+          Icon={BookOpenIcon}
+          onClick={() => onNavigate('promptLibrary')}
         />
       </div>
     </div>

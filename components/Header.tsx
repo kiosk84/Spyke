@@ -20,6 +20,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
         { page: 'generator', label: 'Генератор' },
         { page: 'editor', label: 'Редактор' },
         { page: 'timeMachine', label: 'Машина времени' },
+        { page: 'promptLibrary', label: 'Библиотека' },
         { page: 'info', label: 'Информация' },
         { page: 'history', label: 'История' },
     ];

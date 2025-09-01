@@ -72,3 +72,4 @@ export const OLLAMA_MODEL_KEY = 'ollama_model';
 export const OLLAMA_PROXY_URL_KEY = 'ollama_proxy_url';
 export const CHAT_HISTORY_KEY = 'chat_history';
 export const GENERATOR_SETTINGS_KEY = 'generator_settings';
+export const CUSTOM_PROMPTS_KEY = 'custom_prompts';

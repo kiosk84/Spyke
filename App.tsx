@@ -15,6 +15,7 @@ import { useTelegram } from './hooks/useTelegram';
 import LandingPage from './components/pages/LandingPage';
 import TimeMachinePage from './components/pages/TimeMachinePage';
 import UserPage from './components/pages/UserPage';
+import PromptLibraryPage from './components/pages/PromptLibraryPage';
 
 const App: React.FC = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
@@ -56,6 +57,8 @@ const App: React.FC = () => {
         return <EditorPage />;
       case 'timeMachine':
         return <TimeMachinePage />;
+      case 'promptLibrary':
+        return <PromptLibraryPage />;
       case 'settings':
         return <SettingsPage />;
       case 'user':
