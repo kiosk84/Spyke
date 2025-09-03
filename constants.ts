@@ -1,4 +1,3 @@
-
 import { ImageAspectRatio, SelectOption } from './types';
 
 export const ART_STYLES: SelectOption[] = [
@@ -73,3 +72,11 @@ export const OLLAMA_PROXY_URL_KEY = 'ollama_proxy_url';
 export const CHAT_HISTORY_KEY = 'chat_history';
 export const GENERATOR_SETTINGS_KEY = 'generator_settings';
 export const CUSTOM_PROMPTS_KEY = 'custom_prompts';
+export const USER_BALANCE_KEY = 'user_balance';
+
+// Balance and Costs
+export const DEFAULT_BALANCE = 100;
+export const COST_GENERATE_PER_IMAGE = 1;
+export const COST_EDIT_PRESET = 2;
+export const COST_EDIT_CUSTOM = 3;
+export const COST_TIME_MACHINE_PER_DECADE = 1;

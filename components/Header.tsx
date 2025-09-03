@@ -1,18 +1,19 @@
-
 import React, { useState } from 'react';
 import UserIcon from './icons/UserIcon';
 import BurgerIcon from './icons/BurgerIcon';
 import CloseIcon from './icons/CloseIcon';
 import { Page } from '../types';
 import { TGUser } from '../hooks/useTelegram';
+import CoinIcon from './icons/CoinIcon';
 
 interface HeaderProps {
     activePage: Page;
     onNavigate: (page: Page) => void;
     tgUser?: TGUser;
+    balance: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
+const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser, balance }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navLinks: { page: Page; label: string }[] = [
@@ -33,11 +34,18 @@ const Header: React.FC<HeaderProps> = ({ activePage, onNavigate, tgUser }) => {
         }`;
 
     const UserDisplay = () => (
-         <div className="flex items-center gap-2 bg-dark-tertiary px-4 py-2 rounded-full text-sm font-semibold shadow-inner">
-            <UserIcon className="w-5 h-5 text-brand-cyan" />
-            <span className="text-white truncate max-w-[120px]">
-                {tgUser?.first_name || 'Пользователь'}
-            </span>
+        <div className="flex items-center gap-4 bg-dark-tertiary px-4 py-2 rounded-full text-sm font-semibold shadow-inner">
+            <div className="flex items-center gap-2">
+                <UserIcon className="w-5 h-5 text-brand-cyan" />
+                <span className="text-white truncate max-w-[100px]">
+                    {tgUser?.first_name || 'Пользователь'}
+                </span>
+            </div>
+            <div className="w-px h-5 bg-dark-primary/50"></div>
+            <div className="flex items-center gap-1.5" title="Ваш баланс">
+                <CoinIcon className="w-5 h-5 text-yellow-400"/>
+                <span className="text-white font-bold">{balance}</span>
+            </div>
         </div>
     );
 

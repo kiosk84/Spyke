@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -16,11 +15,31 @@ import LandingPage from './components/pages/LandingPage';
 import TimeMachinePage from './components/pages/TimeMachinePage';
 import UserPage from './components/pages/UserPage';
 import PromptLibraryPage from './components/pages/PromptLibraryPage';
+import { USER_BALANCE_KEY, DEFAULT_BALANCE } from './constants';
 
 const App: React.FC = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const { tg, user } = useTelegram();
+
+  const [balance, setBalance] = useState<number>(() => {
+    const savedBalance = localStorage.getItem(USER_BALANCE_KEY);
+    if (savedBalance) {
+      const parsedBalance = parseInt(savedBalance, 10);
+      return !isNaN(parsedBalance) ? parsedBalance : DEFAULT_BALANCE;
+    }
+    localStorage.setItem(USER_BALANCE_KEY, String(DEFAULT_BALANCE));
+    return DEFAULT_BALANCE;
+  });
+
+  const handleBalanceChange = useCallback((newBalance: number | ((prev: number) => number)) => {
+    setBalance(prevBalance => {
+      const updatedBalance = typeof newBalance === 'function' ? newBalance(prevBalance) : newBalance;
+      localStorage.setItem(USER_BALANCE_KEY, String(updatedBalance));
+      return updatedBalance;
+    });
+  }, []);
+
 
   useEffect(() => {
     // Инициализация Telegram Web App
@@ -52,17 +71,17 @@ const App: React.FC = () => {
       case 'history':
         return <HistoryPage />;
       case 'generator':
-        return <GeneratorPage onNavigate={handleNavigate} />;
+        return <GeneratorPage onNavigate={handleNavigate} balance={balance} onBalanceChange={handleBalanceChange} />;
       case 'editor':
-        return <EditorPage />;
+        return <EditorPage balance={balance} onBalanceChange={handleBalanceChange} />;
       case 'timeMachine':
-        return <TimeMachinePage />;
+        return <TimeMachinePage balance={balance} onBalanceChange={handleBalanceChange} />;
       case 'promptLibrary':
         return <PromptLibraryPage />;
       case 'settings':
         return <SettingsPage />;
       case 'user':
-        return <UserPage />;
+        return <UserPage onBalanceReset={() => handleBalanceChange(DEFAULT_BALANCE)} />;
       default:
         return <LandingPage onNavigate={handleNavigate} />;
     }
@@ -89,7 +108,7 @@ const App: React.FC = () => {
     <>
       {showParticles && <ParticleBackground />}
       <div className={`min-h-screen flex flex-col relative ${currentPage === 'chat' ? 'h-screen overflow-hidden' : ''}`}>
-        {showHeaderAndFooter && <Header activePage={currentPage} onNavigate={handleNavigate} tgUser={user} />}
+        {showHeaderAndFooter && <Header activePage={currentPage} onNavigate={handleNavigate} tgUser={user} balance={balance} />}
         <main className={mainClasses}>
           {renderPage()}
         </main>

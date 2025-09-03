@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, DragEvent } from 'react';
 import Button from '../common/Button';
 import Loader from '../common/Loader';
@@ -19,6 +18,8 @@ import VintageCameraIcon from '../icons/VintageCameraIcon';
 import StarIcon from '../icons/StarIcon';
 import BoltIcon from '../icons/BoltIcon';
 import SparkleIcon from '../icons/SparkleIcon';
+import { COST_EDIT_CUSTOM, COST_EDIT_PRESET } from '../../constants';
+import CoinIcon from '../icons/CoinIcon';
 
 
 interface UploadedImage {
@@ -28,15 +29,20 @@ interface UploadedImage {
     mimeType: string;
 }
 
-const AVATAR_PROMPT = `Turn the photo into a soft digital painting. Keep the person's face and features identical. The background should be a simple blurred park at sunset.`;
-const OIL_PAINTING_PROMPT = `Turn the photo into a classical oil painting with textured brushstrokes. Keep the person's face and features identical. The background should be dark and simple.`;
-const NEON_MIND_PROMPT = `Turn the photo into a cyberpunk portrait with subtle neon highlights on the person. Keep the person's face and features identical. The background should be a dark, rainy city with neon lights.`;
-const CINEMATIC_PROMPT = `Turn the photo into a cinematic movie still. Keep the person's face and features identical. Apply high-contrast, dramatic lighting and a movie-style color grade.`;
-const ANIME_SOUL_PROMPT = `Redraw the photo in a modern anime style. Make the person's face recognizable, but adapt it to the anime aesthetic. The background should be a simple anime scene.`;
-const RETRO_PROMPT = `Turn the photo into a vintage 1950s photograph. Keep the person's face, features, and gender identical. Apply soft focus, warm colors, and a film grain effect.`;
-const GTA_STYLE_PROMPT = `Recreate this photo in the iconic Grand Theft Auto (GTA) cover art style. The person should be the main character. The background should be a neon-lit city at night with a magenta-orange sunset glow. The style should be hyper-stylized realism with strong shadows and saturated colors. Add the text "ART_IRBIT" as a neon sign on a building in the background.`;
-const MYTHIC_PROMPT = `Turn the photo into an epic fantasy portrait. Keep the person's face and features identical. Change the clothing into detailed fantasy armor. The background should be a majestic, fantastical landscape.`;
-const BEAUTY_PROMPT = `Perform a hyper-realistic beauty retouch on the photo. Enhance the person's features naturally, do not change them. Give the skin a flawless, glowing look and apply subtle "no-makeup" style makeup. The lighting should be soft and flattering, and the background should be simple and blurred.`;
+interface EditorPageProps {
+    balance: number;
+    onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
+}
+
+const AVATAR_PROMPT = `A soft digital painting of the person in the photo. The background is a simple blurred park at sunset. The person's face and features are identical to the original photo.`;
+const OIL_PAINTING_PROMPT = `A classical oil painting of the person in the photo, with textured brushstrokes. The background is dark and simple. The person's face and features are identical to the original photo.`;
+const NEON_MIND_PROMPT = `A cyberpunk portrait of the person in the photo, with subtle neon highlights. The background is a dark, rainy city with neon lights. The person's face and features are identical to the original photo.`;
+const CINEMATIC_PROMPT = `A cinematic movie still of the person in the photo. Apply high-contrast, dramatic lighting and a movie-style color grade. The person's face and features are identical to the original photo.`;
+const ANIME_SOUL_PROMPT = `An illustration of the person in the photo, redrawn in a modern anime style. The person's face should be recognizable but adapted to the anime aesthetic. The background is a simple anime scene.`;
+const RETRO_PROMPT = `A vintage 1950s photograph of the person in the photo. Apply soft focus, warm colors, and a film grain effect. The person's face, features, and gender are identical to the original photo.`;
+const GTA_STYLE_PROMPT = `The person in the photo as the main character in the iconic Grand Theft Auto (GTA) cover art style. The background is a neon-lit city at night with a magenta-orange sunset glow. The style is hyper-stylized realism with strong shadows and saturated colors. The text "ART_IRBIT" is a neon sign on a building in the background.`;
+const MYTHIC_PROMPT = `An epic fantasy portrait of the person in the photo. The clothing is changed to detailed fantasy armor. The background is a majestic, fantastical landscape. The person's face and features are identical to the original photo.`;
+const BEAUTY_PROMPT = `A hyper-realistic beauty retouch of the photo. The person's features are enhanced naturally, but not changed. The skin has a flawless, glowing look with subtle "no-makeup" style makeup. The lighting is soft and flattering, and the background is simple and blurred.`;
 
 const styles = [
     { label: "Аватар", prompt: AVATAR_PROMPT, Icon: UserCircleIcon },
@@ -66,7 +72,7 @@ const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, m
     });
 };
 
-const EditorPage: React.FC = () => {
+const EditorPage: React.FC<EditorPageProps> = ({ balance, onBalanceChange }) => {
     const [originalImage, setOriginalImage] = useState<UploadedImage | null>(null);
     const [editedImage, setEditedImage] = useState<string | null>(null);
     const [prompt, setPrompt] = useState('');
@@ -77,6 +83,9 @@ const EditorPage: React.FC = () => {
     const [isEnhancing, setIsEnhancing] = useState(false);
     const [sliderPosition, setSliderPosition] = useState(50);
     const [editHistory, setEditHistory] = useState<string[]>([]);
+
+    const hasSufficientBalanceForPreset = balance >= COST_EDIT_PRESET;
+    const hasSufficientBalanceForCustom = balance >= COST_EDIT_CUSTOM;
 
     const handleFileDrop = useCallback(async (files: FileList | null) => {
         if (!files || files.length === 0) return;
@@ -113,12 +122,16 @@ const EditorPage: React.FC = () => {
         setEditHistory([]);
     }, [originalImage]);
 
-    const handleEdit = useCallback(async (finalPrompt: string) => {
+    const handleEdit = useCallback(async (finalPrompt: string, cost: number) => {
         const imageToEdit = editedImage || originalImage?.base64;
         const mimeTypeToEdit = originalImage?.mimeType;
 
         if (!imageToEdit || !mimeTypeToEdit) {
             setError('Сначала загрузите изображение.');
+            return;
+        }
+         if (balance < cost) {
+            setError(`Недостаточно средств. Требуется: ${cost}, у вас: ${balance}.`);
             return;
         }
         setIsLoading(true);
@@ -131,6 +144,7 @@ const EditorPage: React.FC = () => {
                 setEditedImage(newImage);
                 setEditHistory(prev => [...prev, newImage]);
                 setSliderPosition(100);
+                onBalanceChange(prev => prev - cost);
             } else {
                 throw new Error('Модель не вернула изображение.');
             }
@@ -139,11 +153,11 @@ const EditorPage: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [originalImage, editedImage, aspectRatio]);
+    }, [originalImage, editedImage, aspectRatio, balance, onBalanceChange]);
 
     const handlePresetClick = useCallback((presetPrompt: string) => {
         setPrompt(''); 
-        handleEdit(presetPrompt);
+        handleEdit(presetPrompt, COST_EDIT_PRESET);
     }, [handleEdit]);
 
     const handleCustomPromptEnhance = useCallback(async () => {
@@ -153,7 +167,7 @@ const EditorPage: React.FC = () => {
         try {
             const enhanced = await aiService.enhanceCustomPrompt(prompt);
             setPrompt(enhanced);
-            await handleEdit(enhanced);
+            await handleEdit(enhanced, COST_EDIT_CUSTOM);
         } catch (err: any) {
             setError(err instanceof Error ? err.message : 'Ошибка улучшения промпта.');
         } finally {
@@ -189,12 +203,16 @@ const EditorPage: React.FC = () => {
                                     <Button
                                         key={style.label}
                                         onClick={() => handlePresetClick(style.prompt)}
-                                        disabled={isLoading || isEnhancing}
+                                        disabled={isLoading || isEnhancing || !hasSufficientBalanceForPreset}
                                         Icon={style.Icon}
                                         variant="secondary"
-                                        className="w-full justify-start text-base py-3"
+                                        className="w-full justify-between items-center text-base py-3"
                                     >
-                                        {style.label}
+                                        <span>{style.label}</span>
+                                        <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs ${hasSufficientBalanceForPreset ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                                            <CoinIcon className="w-3 h-3"/>
+                                            <span>{COST_EDIT_PRESET}</span>
+                                        </div>
                                     </Button>
                                 ))}
                             </div>
@@ -219,11 +237,17 @@ const EditorPage: React.FC = () => {
                             <Button
                                 onClick={handleCustomPromptEnhance}
                                 isLoading={isEnhancing}
-                                disabled={!prompt.trim() || isLoading}
+                                disabled={!prompt.trim() || isLoading || !hasSufficientBalanceForCustom}
                                 className="w-full"
-                                Icon={MagicWandIcon}
                             >
-                                Улучшить и применить
+                                <div className="flex items-center justify-center gap-2">
+                                    <MagicWandIcon className="w-5 h-5" />
+                                    <span>Улучшить и применить</span>
+                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm ${hasSufficientBalanceForCustom ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                                        <CoinIcon className="w-4 h-4" />
+                                        <span>{COST_EDIT_CUSTOM}</span>
+                                    </div>
+                                </div>
                             </Button>
                         </div>
                     </div>

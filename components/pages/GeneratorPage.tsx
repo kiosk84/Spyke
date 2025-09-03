@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import SettingsPanel from '../SettingsPanel';
 import PromptDisplay from '../PromptDisplay';
@@ -7,10 +6,13 @@ import Button from '../common/Button';
 import CameraIcon from '../icons/CameraIcon';
 import { Settings, Page } from '../../types';
 import * as aiService from '../../services/aiService';
-import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT, GENERATOR_SETTINGS_KEY } from '../../constants';
+import { ART_STYLES, LIGHTING_OPTIONS, CAMERA_ANGLES, MOODS, ASPECT_RATIOS, DEFAULT_NEGATIVE_PROMPT, GENERATOR_SETTINGS_KEY, COST_GENERATE_PER_IMAGE } from '../../constants';
+import CoinIcon from '../icons/CoinIcon';
 
 interface GeneratorPageProps {
   onNavigate: (page: Page) => void;
+  balance: number;
+  onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
 }
 
 const fileToBase64 = (file: File): Promise<{ data: string, mimeType: string }> => {
@@ -28,7 +30,7 @@ const fileToBase64 = (file: File): Promise<{ data: string, mimeType: string }> =
     });
 };
 
-const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
+const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate, balance, onBalanceChange }) => {
   const [settings, setSettings] = useState<Settings>(() => {
     const defaultSettings = {
       idea: '',
@@ -61,6 +63,9 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState<boolean>(false);
+  
+  const generationCost = settings.imageCount * COST_GENERATE_PER_IMAGE;
+  const hasSufficientBalance = balance >= generationCost;
 
   useEffect(() => {
     // Save settings to localStorage whenever they change
@@ -148,17 +153,22 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
         setError('Сначала необходимо улучшить или сгенерировать промпт.');
         return;
     }
+     if (!hasSufficientBalance) {
+        setError(`Недостаточно средств. Требуется: ${generationCost}, у вас: ${balance}.`);
+        return;
+    }
     setIsGenerating(true);
     setError(null);
     try {
       const images = await aiService.generateImages(enhancedPrompt, settings.imageCount, settings.aspectRatio);
       setGeneratedImages(prevImages => [...images, ...prevImages]);
+      onBalanceChange(prev => prev - generationCost);
     } catch (err: any) {
       handleError(err);
     } finally {
       setIsGenerating(false);
     }
-  }, [enhancedPrompt, settings.imageCount, settings.aspectRatio]);
+  }, [enhancedPrompt, settings.imageCount, settings.aspectRatio, balance, onBalanceChange, generationCost, hasSufficientBalance]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -179,11 +189,17 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate }) => {
              <Button
                 onClick={handleGenerate}
                 isLoading={isGenerating}
-                disabled={!enhancedPrompt || isEnhancingText || isAnalyzingImage}
+                disabled={!enhancedPrompt || isEnhancingText || isAnalyzingImage || !hasSufficientBalance}
                 className="w-full text-lg"
-                Icon={CameraIcon}
             >
-                Создать изображение
+              <div className="flex items-center justify-center gap-2">
+                  <CameraIcon className="w-6 h-6" />
+                  <span>Создать изображение</span>
+                  <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm ${hasSufficientBalance ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                      <CoinIcon className="w-4 h-4" />
+                      <span>{generationCost}</span>
+                  </div>
+              </div>
             </Button>
             <p className="text-center text-xs text-light-secondary/60">
               *Все операции выполняются с помощью Google AI.*

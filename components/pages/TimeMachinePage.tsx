@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, DragEvent } from 'react';
 import * as aiService from '../../services/aiService';
 import Button from '../common/Button';
@@ -7,6 +6,8 @@ import ImageIcon from '../icons/ImageIcon';
 import TrashIcon from '../icons/TrashIcon';
 import RefreshIcon from '../icons/RefreshIcon';
 import ClockIcon from '../icons/ClockIcon';
+import { COST_TIME_MACHINE_PER_DECADE } from '../../constants';
+import CoinIcon from '../icons/CoinIcon';
 
 interface UploadedImage {
     file: File;
@@ -18,6 +19,11 @@ interface UploadedImage {
 interface DecadeImage {
     url: string | null;
     isLoading: boolean;
+}
+
+interface TimeMachinePageProps {
+    balance: number;
+    onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
 }
 
 const fileToData = (file: File): Promise<{ previewUrl: string, base64: string, mimeType: string }> => {
@@ -40,38 +46,42 @@ const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: `Recreate this photo as a 1950s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1950s style. Make it look like old color film.`,
-        regen: `Recreate this photo as a classic 1950s black and white portrait. Keep the person's face, features, and gender the same. Change clothes and hair to 1950s style.`
+        initial: `A color photograph of the person in the image, styled as if taken in the 1950s. The clothes and hair are in the 1950s style. The photo has the look of old color film. The person's face, features, and gender remain the same.`,
+        regen: `A classic black and white portrait of the person in the image, styled as if taken in the 1950s. The clothes and hair are in the 1950s style. The person's face, features, and gender remain the same.`
     },
     '1960s': {
-        initial: `Recreate this photo as a 1960s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1960s style. Give it a vintage film look.`,
-        regen: `Recreate this photo as a casual 1960s color snapshot. Keep the person's face, features, and gender the same. Change clothes and hair to a relaxed 1960s style.`
+        initial: `A color photograph of the person in the image, styled as if taken in the 1960s. The clothes and hair are in the 1960s style. The photo has a vintage film look. The person's face, features, and gender remain the same.`,
+        regen: `A casual color snapshot of the person in the image, styled as if taken in the 1960s. The clothes and hair are in a relaxed 1960s style. The person's face, features, and gender remain the same.`
     },
     '1970s': {
-        initial: `Recreate this photo as a 1970s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1970s style. Use slightly faded, warm colors.`,
-        regen: `Recreate this photo as a 1970s disco-style portrait. Keep the person's face, features, and gender the same. Change clothes and hair to a flashy 1970s disco style.`
+        initial: `A color photograph of the person in the image, styled as if taken in the 1970s. The clothes and hair are in a classic 1970s style. The photo has a warm, slightly faded color palette with a soft focus, characteristic of film photography from that era. The person's face, features, and gender remain the same.`,
+        regen: `A 1970s disco-style portrait of the person in the image. The clothes and hair are in a flashy 1970s disco style. The person's face, features, and gender remain the same.`
     },
     '1980s': {
-        initial: `Recreate this photo as a 1980s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1980s style. Use bright, vibrant colors.`,
-        regen: `Recreate this photo as a stylish 1980s portrait with neon colors. Keep the person's face, features, and gender the same. Change clothes and hair to a fashionable 1980s style.`
+        initial: `A color photograph of the person in the image, styled as if taken in the 1980s. The clothes and hair are in the 1980s style. The photo uses bright, vibrant colors. The person's face, features, and gender remain the same.`,
+        regen: `A stylish 1980s portrait of the person in the image, with neon colors. The clothes and hair are in a fashionable 1980s style. The person's face, features, and gender remain the same.`
     },
     '1990s': {
-        initial: `Recreate this photo as a 1990s color picture. Keep the person's face, features, and gender the same. Change clothes and hair to 1990s style. Make it look like a 35mm film photo.`,
-        regen: `Recreate this photo as a bright, clean 1990s portrait. Keep the person's face, features, and gender the same. Change clothes and hair to a popular 1990s style.`
+        initial: `A color photograph of the person in the image, styled as if taken in the 1990s. The clothes and hair are in the 1990s style. The photo looks like it was taken on 35mm film. The person's face, features, and gender remain the same.`,
+        regen: `A bright, clean portrait of the person in the image, styled as if taken in the 1990s. The clothes and hair are in a popular 1990s style. The person's face, features, and gender remain the same.`
     },
     '2000s': {
-        initial: `Recreate this photo as if taken with an early 2000s digital camera. Keep the person's face, features, and gender the same. Change clothes and hair to early 2000s style. Use a direct flash effect.`,
-        regen: `Recreate this photo as a casual mid-2000s picture. Keep the person's face, features, and gender the same. Change clothes and hair to a popular mid-2000s style.`
+        initial: `A photograph of the person in the image, styled as if taken with an early 2000s digital camera. The clothes and hair are in early 2000s style. The photo has a direct flash effect. The person's face, features, and gender remain the same.`,
+        regen: `A casual photograph of the person in the image, styled as if taken in the mid-2000s. The clothes and hair are in a popular mid-2000s style. The person's face, features, and gender remain the same.`
     },
 };
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-const TimeMachinePage: React.FC = () => {
+const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceChange }) => {
     const [originalImage, setOriginalImage] = useState<UploadedImage | null>(null);
     const [generatedImages, setGeneratedImages] = useState<Record<string, DecadeImage>>({});
     const [isGeneratingAll, setIsGeneratingAll] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    
+    const costForAll = DECADES.length * COST_TIME_MACHINE_PER_DECADE;
+    const hasSufficientBalanceForAll = balance >= costForAll;
+    const hasSufficientBalanceForOne = balance >= COST_TIME_MACHINE_PER_DECADE;
 
     const handleError = (err: any, context?: string) => {
         const message = err instanceof Error ? err.message : 'Произошла неизвестная ошибка.';
@@ -98,6 +108,9 @@ const TimeMachinePage: React.FC = () => {
 
     const handleGenerateAll = async () => {
         if (!originalImage) return;
+        if (!hasSufficientBalanceForAll) {
+            return handleError(new Error(`Недостаточно средств. Требуется: ${costForAll}, у вас: ${balance}.`));
+        }
         setIsGeneratingAll(true);
         setError(null);
     
@@ -113,6 +126,7 @@ const TimeMachinePage: React.FC = () => {
                 const images = await aiService.editImage(PROMPTS_BY_DECADE[decade].initial, originalImage.base64, originalImage.mimeType, '3:4');
                 if (images.length > 0) {
                     setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
+                    onBalanceChange(prev => prev - COST_TIME_MACHINE_PER_DECADE);
                 } else {
                     throw new Error('Модель вернула пустой ответ.');
                 }
@@ -131,7 +145,7 @@ const TimeMachinePage: React.FC = () => {
 
             // Add a delay between requests to avoid rate limiting
             if (i < DECADES.length - 1) {
-                await delay(61000); // 61-second delay
+                await delay(65000); // 65-second delay
             }
         }
     
@@ -140,12 +154,16 @@ const TimeMachinePage: React.FC = () => {
     
     const handleRegenerate = async (decade: string) => {
         if (!originalImage || isGeneratingAll) return;
+        if (!hasSufficientBalanceForOne) {
+            return handleError(new Error(`Недостаточно средств. Требуется: ${COST_TIME_MACHINE_PER_DECADE}, у вас: ${balance}.`));
+        }
         setGeneratedImages(prev => ({ ...prev, [decade]: { ...prev[decade], isLoading: true } }));
         setError(null);
         try {
             const images = await aiService.editImage(PROMPTS_BY_DECADE[decade].regen, originalImage.base64, originalImage.mimeType, '3:4');
             if (images.length > 0) {
                 setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
+                onBalanceChange(prev => prev - COST_TIME_MACHINE_PER_DECADE);
             } else {
                 throw new Error('Модель вернула пустой ответ.');
             }
@@ -184,8 +202,9 @@ const TimeMachinePage: React.FC = () => {
                         <img src={data.url} alt={`Generated for ${decade}`} className="w-full h-full object-cover" />
                         <button 
                             onClick={onRegenerate}
-                            className="absolute top-2 right-2 p-2 bg-black/40 text-white rounded-full backdrop-blur-sm hover:bg-black/60 transition-colors"
+                            className="absolute top-2 right-2 p-2 bg-black/40 text-white rounded-full backdrop-blur-sm hover:bg-black/60 transition-colors disabled:opacity-50"
                             aria-label={`Перегенерировать для ${decade}`}
+                            disabled={!hasSufficientBalanceForOne}
                         >
                             <RefreshIcon className="w-5 h-5" />
                         </button>
@@ -223,8 +242,20 @@ const TimeMachinePage: React.FC = () => {
                         <div className="text-center md:text-left">
                             <h2 className="text-xl font-bold font-display text-light-primary">Ваше путешествие готово</h2>
                             <p className="text-light-secondary mt-1 mb-4">Нажмите кнопку, чтобы запустить машину времени и увидеть себя в прошлом.</p>
-                             <Button onClick={handleGenerateAll} isLoading={isGeneratingAll} className="w-full md:w-auto text-lg" Icon={ClockIcon}>
-                                Создать образы
+                             <Button
+                                onClick={handleGenerateAll}
+                                isLoading={isGeneratingAll}
+                                disabled={isGeneratingAll || !hasSufficientBalanceForAll}
+                                className="w-full md:w-auto text-lg"
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <ClockIcon className="w-6 h-6" />
+                                    <span>Создать образы</span>
+                                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm ${hasSufficientBalanceForAll ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                                        <CoinIcon className="w-4 h-4" />
+                                        <span>{costForAll}</span>
+                                    </div>
+                                </div>
                             </Button>
                         </div>
                     </div>
