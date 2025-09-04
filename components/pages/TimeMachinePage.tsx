@@ -46,28 +46,28 @@ const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: `A color photograph of the person in the image, styled as if taken in the 1950s. The clothes and hair are in the 1950s style. The photo has the look of old color film. The person's face, features, and gender remain the same.`,
-        regen: `A classic black and white portrait of the person in the image, styled as if taken in the 1950s. The clothes and hair are in the 1950s style. The person's face, features, and gender remain the same.`
+        initial: "Reimagine this person in a classic 1950s portrait. Give them a hairstyle and outfit typical of the era, such as a neat side part or victory rolls, and a button-down shirt or a classic dress. Apply the look of a vintage Kodachrome color photograph with rich, slightly saturated colors. Preserve the person's recognizable facial features and likeness.",
+        regen: "Transform this into a timeless black and white photograph from the 1950s. The style should be elegant and simple, with soft lighting. Dress the person in classic 50s fashion. Ensure the person's likeness and facial features are clearly recognizable."
     },
     '1960s': {
-        initial: `A color photograph of the person in the image, styled as if taken in the 1960s. The clothes and hair are in the 1960s style. The photo has a vintage film look. The person's face, features, and gender remain the same.`,
-        regen: `A casual color snapshot of the person in the image, styled as if taken in the 1960s. The clothes and hair are in a relaxed 1960s style. The person's face, features, and gender remain the same.`
+        initial: "Recreate this portrait with a 1960s 'Swinging London' vibe. Give the person a mod hairstyle and fashion, like a sharp suit or a minidress. The photo should have the quality of a vintage color magazine shoot from the 60s, with vibrant colors. Keep the person's recognizable facial features and likeness.",
+        regen: "Give this portrait a late 1960s hippie-era look. Add long hair, maybe with a headband, and clothes with psychedelic or floral patterns. The photo should have a warm, sun-drenched, grainy film look. Preserve the person's likeness and facial features."
     },
     '1970s': {
-        initial: `A color photograph of the person in the image, styled as if taken in the 1970s. The clothes and hair are in a classic 1970s style. The photo has a warm, slightly faded color palette with a soft focus, characteristic of film photography from that era. The person's face, features, and gender remain the same.`,
-        regen: `A 1970s disco-style portrait of the person in the image. The clothes and hair are in a flashy 1970s disco style. The person's face, features, and gender remain the same.`
+        initial: "Transform this into a 1970s film photograph. The person should have a hairstyle and clothing characteristic of the 70s, like feathered hair and a shirt with a large collar. Apply a warm, slightly faded color palette with high contrast, typical of 70s film stock. The person's recognizable facial features and likeness must be preserved.",
+        regen: "Give this person a 1970s disco makeover. Think glamorous, sparkling outfits and voluminous hair. The background should be a dimly lit disco with colorful lights. The photo should feel energetic and stylish. Ensure the person's likeness is maintained."
     },
     '1980s': {
-        initial: `A color photograph of the person in the image, styled as if taken in the 1980s. The clothes and hair are in the 1980s style. The photo uses bright, vibrant colors. The person's face, features, and gender remain the same.`,
-        regen: `A stylish 1980s portrait of the person in the image, with neon colors. The clothes and hair are in a fashionable 1980s style. The person's face, features, and gender remain the same.`
+        initial: "Recreate this portrait with a bold 1980s aesthetic. Give the person big hair and an outfit with shoulder pads or neon colors. The photo should have a slightly glossy, studio-quality look with vibrant, saturated colors. Preserve the person's recognizable facial features and likeness.",
+        regen: "Transform this into an 80s rock or pop star-style photo. Use dramatic lighting, maybe with a haze or smoke effect. The fashion should be edgy, like a leather jacket or ripped jeans. Keep the person's likeness and facial features clearly recognizable."
     },
     '1990s': {
-        initial: `A color photograph of the person in the image, styled as if taken in the 1990s. The clothes and hair are in the 1990s style. The photo looks like it was taken on 35mm film. The person's face, features, and gender remain the same.`,
-        regen: `A bright, clean portrait of the person in the image, styled as if taken in the 1990s. The clothes and hair are in a popular 1990s style. The person's face, features, and gender remain the same.`
+        initial: "Give this portrait a 1990s grunge look. The person should have a casual, layered outfit and a relaxed hairstyle. The photo should look like it was taken on 35mm film, with natural lighting and a slightly grainy texture. Preserve the person's recognizable facial features and likeness.",
+        regen: "Transform this into a bright, upbeat 90s pop-style portrait. Use vibrant colors, and give the person a fun, trendy 90s hairstyle and outfit. The lighting should be clean and bright, like a teen magazine photoshoot. Ensure the person's likeness is maintained."
     },
     '2000s': {
-        initial: `A photograph of the person in the image, styled as if taken with an early 2000s digital camera. The clothes and hair are in early 2000s style. The photo has a direct flash effect. The person's face, features, and gender remain the same.`,
-        regen: `A casual photograph of the person in the image, styled as if taken in the mid-2000s. The clothes and hair are in a popular mid-2000s style. The person's face, features, and gender remain the same.`
+        initial: "Recreate this portrait to look like a photo taken with an early 2000s digital camera. The person should wear Y2K fashion, like a denim jacket or a graphic tee. The photo should have the characteristic look of early digital photography, with sharp focus and slightly harsh on-camera flash. Preserve the person's recognizable facial features and likeness.",
+        regen: "Give this person a mid-2000s indie or emo style. Think side-swept bangs, a band t-shirt, and skinny jeans. The photo should have a slightly desaturated, moody look, as if taken for a social media profile of that era. Keep the person's likeness clearly recognizable."
     },
 };
 
@@ -128,129 +128,119 @@ const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceCha
                     setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
                     onBalanceChange(prev => prev - COST_TIME_MACHINE_PER_DECADE);
                 } else {
-                    throw new Error('Модель вернула пустой ответ.');
+                     throw new Error(`Модель не вернула изображение для ${decade}.`);
+                }
+                if (i < DECADES.length - 1) {
+                    await delay(1000);
                 }
             } catch (err) {
-                handleError(err, `Ошибка генерации для ${decade}`);
-                setGeneratedImages(prev => {
-                    const updated = { ...prev };
-                    for (let j = i; j < DECADES.length; j++) {
-                        updated[DECADES[j]] = { url: null, isLoading: false };
-                    }
-                    return updated;
-                });
-                setIsGeneratingAll(false);
-                return; 
-            }
-
-            // Add a delay between requests to avoid rate limiting
-            if (i < DECADES.length - 1) {
-                await delay(65000); // 65-second delay
+                handleError(err, `Ошибка при генерации для ${decade}`);
+                setGeneratedImages(prev => ({ ...prev, [decade]: { url: null, isLoading: false } }));
             }
         }
-    
         setIsGeneratingAll(false);
     };
-    
+
     const handleRegenerate = async (decade: string) => {
         if (!originalImage || isGeneratingAll) return;
         if (!hasSufficientBalanceForOne) {
             return handleError(new Error(`Недостаточно средств. Требуется: ${COST_TIME_MACHINE_PER_DECADE}, у вас: ${balance}.`));
         }
-        setGeneratedImages(prev => ({ ...prev, [decade]: { ...prev[decade], isLoading: true } }));
+        
         setError(null);
+        setGeneratedImages(prev => ({ ...prev, [decade]: { url: prev[decade]?.url, isLoading: true } }));
+        
         try {
             const images = await aiService.editImage(PROMPTS_BY_DECADE[decade].regen, originalImage.base64, originalImage.mimeType, '3:4');
             if (images.length > 0) {
                 setGeneratedImages(prev => ({ ...prev, [decade]: { url: images[0], isLoading: false } }));
                 onBalanceChange(prev => prev - COST_TIME_MACHINE_PER_DECADE);
             } else {
-                throw new Error('Модель вернула пустой ответ.');
+                 throw new Error(`Модель не вернула изображение для ${decade}.`);
             }
         } catch (err) {
-            handleError(err, `Ошибка перегенерации для ${decade}`);
+            handleError(err, `Ошибка при регенерации для ${decade}`);
             setGeneratedImages(prev => ({ ...prev, [decade]: { ...prev[decade], isLoading: false } }));
         }
     };
 
-    const handleRemoveImage = () => {
-        setOriginalImage(null);
-        setGeneratedImages({});
-        setError(null);
-    };
+    const renderDecadeCard = (decade: string) => {
+        const data = generatedImages[decade];
+        const isLoading = data?.isLoading || false;
+        const imageUrl = data?.url;
 
-    const ImageUploader = () => (
-         <div 
-          className="relative w-full max-w-lg mx-auto border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
-          onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
-          onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
-        >
-            <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
-            <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-lg text-light-secondary"><span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите</p>
-            <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
-        </div>
-    );
-    
-    const PolaroidCard: React.FC<{ decade: string; data: DecadeImage; onRegenerate: () => void; }> = ({ decade, data, onRegenerate }) => (
-        <div className="bg-light-primary p-3 pb-4 rounded-lg shadow-lg transform transition-transform hover:-translate-y-2 w-full animate-fade-in">
-            <div className="relative bg-dark-tertiary aspect-[3/4] rounded-md flex items-center justify-center overflow-hidden">
-                {data.isLoading ? (
-                    <Loader size="md" />
-                ) : data.url ? (
+        return (
+            <div key={decade} className="relative aspect-[3/4] bg-dark-secondary rounded-lg overflow-hidden shadow-lg border border-dark-tertiary/50">
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <Loader size="md" />
+                    </div>
+                ) : imageUrl ? (
                     <>
-                        <img src={data.url} alt={`Generated for ${decade}`} className="w-full h-full object-cover" />
-                        <button 
-                            onClick={onRegenerate}
-                            className="absolute top-2 right-2 p-2 bg-black/40 text-white rounded-full backdrop-blur-sm hover:bg-black/60 transition-colors disabled:opacity-50"
-                            aria-label={`Перегенерировать для ${decade}`}
-                            disabled={!hasSufficientBalanceForOne}
+                        <img src={imageUrl} alt={`Image for ${decade}`} className="w-full h-full object-cover" />
+                        <button
+                            onClick={() => handleRegenerate(decade)}
+                            disabled={isGeneratingAll || !hasSufficientBalanceForOne}
+                            className="absolute bottom-2 right-2 p-2 bg-white/20 rounded-full text-white backdrop-blur-sm hover:bg-white/30 transition-colors disabled:opacity-50"
+                            title="Сгенерировать другой вариант"
                         >
                             <RefreshIcon className="w-5 h-5" />
                         </button>
                     </>
                 ) : (
-                    <div className="text-center p-2">
-                        <p className="text-sm text-red-400">Ошибка</p>
+                    <div className="flex items-center justify-center h-full text-light-secondary/50">
+                        <p>Ошибка</p>
                     </div>
                 )}
+                <div className="absolute top-0 left-0 bg-black/50 text-white text-sm font-bold px-3 py-1 rounded-br-lg">
+                    {decade}
+                </div>
             </div>
-            <p className="text-center text-dark-primary font-display font-bold text-xl mt-3">{decade}</p>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="space-y-8">
             <div className="text-center">
-                 <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta font-display">
+                <h1 className="text-3xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta font-display">
                     Машина Времени
                 </h1>
                 <p className="text-light-secondary max-w-2xl mx-auto">
-                    Загрузите своё фото, и мы отправим его в прошлое! Посмотрите, как бы вы выглядели в разные эпохи, от 50-х до 2000-х.
+                    Загрузите свой портрет и посмотрите, как бы вы выглядели в разные десятилетия прошлого.
                 </p>
             </div>
-            
-            {!originalImage ? <ImageUploader /> : (
-                <div className="bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50 space-y-6">
-                    <div className="flex flex-col md:flex-row items-center gap-6">
-                        <div className="relative flex-shrink-0 w-48 h-48">
-                            <img src={originalImage.previewUrl} alt="Загружено" className="w-full h-full object-cover rounded-lg shadow-lg" />
-                             <button onClick={handleRemoveImage} className="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-transform hover:scale-110" aria-label="Удалить изображение">
-                                <TrashIcon className="w-4 h-4"/>
-                            </button>
+    
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-4 flex flex-col gap-8">
+                     {!originalImage ? (
+                        <div 
+                            className="relative w-full h-full min-h-[300px] lg:min-h-full border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
+                            onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
+                            onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
+                        >
+                            <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
+                            <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
+                            <p className="text-lg text-light-secondary"><span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите</p>
+                            <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
                         </div>
-                        <div className="text-center md:text-left">
-                            <h2 className="text-xl font-bold font-display text-light-primary">Ваше путешествие готово</h2>
-                            <p className="text-light-secondary mt-1 mb-4">Нажмите кнопку, чтобы запустить машину времени и увидеть себя в прошлом.</p>
-                             <Button
+                    ) : (
+                        <div className="bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50 space-y-4 animate-fade-in text-center sticky top-24">
+                            <h2 className="text-xl font-bold text-light-primary font-display">Ваше фото</h2>
+                            <div className="relative w-full aspect-[3/4] mx-auto">
+                                <img src={originalImage.previewUrl} alt="Original" className="rounded-lg w-full h-full object-cover shadow-lg"/>
+                                <button onClick={() => { setOriginalImage(null); setGeneratedImages({}); }} className="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-transform hover:scale-110" aria-label="Удалить изображение">
+                                    <TrashIcon className="w-4 h-4"/>
+                                </button>
+                            </div>
+                            <Button
                                 onClick={handleGenerateAll}
                                 isLoading={isGeneratingAll}
-                                disabled={isGeneratingAll || !hasSufficientBalanceForAll}
-                                className="w-full md:w-auto text-lg"
+                                disabled={!originalImage || isGeneratingAll || !hasSufficientBalanceForAll}
+                                className="w-full text-lg"
                             >
                                 <div className="flex items-center justify-center gap-2">
                                     <ClockIcon className="w-6 h-6" />
-                                    <span>Создать образы</span>
+                                    <span>Запустить машину времени</span>
                                     <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-sm ${hasSufficientBalanceForAll ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
                                         <CoinIcon className="w-4 h-4" />
                                         <span>{costForAll}</span>
@@ -258,27 +248,17 @@ const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceCha
                                 </div>
                             </Button>
                         </div>
+                    )}
+                </div>
+                
+                 <div className="lg:col-span-8">
+                     {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center mb-6">{error}</div>}
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {DECADES.map(renderDecadeCard)}
                     </div>
                 </div>
-            )}
-            
-            {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center max-w-3xl mx-auto">{error}</div>}
-
-            {Object.keys(generatedImages).length > 0 && (
-                <div>
-                     <h2 className="text-2xl font-bold text-light-primary font-display text-center mb-6">Ваша фотолента из прошлого</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
-                        {DECADES.map(decade => generatedImages[decade] && (
-                            <PolaroidCard 
-                                key={decade} 
-                                decade={decade} 
-                                data={generatedImages[decade]} 
-                                onRegenerate={() => handleRegenerate(decade)} 
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
+            </div>
         </div>
     );
 };

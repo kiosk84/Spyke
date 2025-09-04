@@ -34,15 +34,15 @@ interface EditorPageProps {
     onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
 }
 
-const AVATAR_PROMPT = `A soft digital painting of the person in the photo. The background is a simple blurred park at sunset. The person's face and features are identical to the original photo.`;
-const OIL_PAINTING_PROMPT = `A classical oil painting of the person in the photo, with textured brushstrokes. The background is dark and simple. The person's face and features are identical to the original photo.`;
-const NEON_MIND_PROMPT = `A cyberpunk portrait of the person in the photo, with subtle neon highlights. The background is a dark, rainy city with neon lights. The person's face and features are identical to the original photo.`;
-const CINEMATIC_PROMPT = `A cinematic movie still of the person in the photo. Apply high-contrast, dramatic lighting and a movie-style color grade. The person's face and features are identical to the original photo.`;
-const ANIME_SOUL_PROMPT = `An illustration of the person in the photo, redrawn in a modern anime style. The person's face should be recognizable but adapted to the anime aesthetic. The background is a simple anime scene.`;
-const RETRO_PROMPT = `A vintage 1950s photograph of the person in the photo. Apply soft focus, warm colors, and a film grain effect. The person's face, features, and gender are identical to the original photo.`;
-const GTA_STYLE_PROMPT = `The person in the photo as the main character in the iconic Grand Theft Auto (GTA) cover art style. The background is a neon-lit city at night with a magenta-orange sunset glow. The style is hyper-stylized realism with strong shadows and saturated colors. The text "ART_IRBIT" is a neon sign on a building in the background.`;
-const MYTHIC_PROMPT = `An epic fantasy portrait of the person in the photo. The clothing is changed to detailed fantasy armor. The background is a majestic, fantastical landscape. The person's face and features are identical to the original photo.`;
-const BEAUTY_PROMPT = `A hyper-realistic beauty retouch of the photo. The person's features are enhanced naturally, but not changed. The skin has a flawless, glowing look with subtle "no-makeup" style makeup. The lighting is soft and flattering, and the background is simple and blurred.`;
+const AVATAR_PROMPT = `Apply a soft digital painting style to the person. Change the background to a simple, blurred park at sunset. Do not change the person's face or features.`;
+const OIL_PAINTING_PROMPT = `Apply a classical oil painting style with textured brushstrokes to the person. Make the background dark and simple. Keep the person's face and features the same.`;
+const NEON_MIND_PROMPT = `Apply a cyberpunk style with subtle neon highlights. Change the background to a dark, rainy city with neon lights. Do not alter the person's face.`;
+const CINEMATIC_PROMPT = `Apply a cinematic movie still look. Use high-contrast, dramatic lighting and a movie-style color grade. Keep the person's face identical.`;
+const ANIME_SOUL_PROMPT = `Redraw the person in a modern anime style, keeping their facial features recognizable. Change the background to a simple anime scene.`;
+const RETRO_PROMPT = `Apply a vintage 1950s photograph effect with soft focus, warm colors, and film grain. Keep the person's face, features, and gender identical.`;
+const GTA_STYLE_PROMPT = `Apply the Grand Theft Auto (GTA) cover art style. Set the background to a neon-lit city at night with a magenta-orange sunset. Use hyper-stylized realism with strong shadows and saturated colors. Add the text "ART_IRBIT" as a neon sign in the background.`;
+const MYTHIC_PROMPT = `Change the clothing to detailed fantasy armor and the background to a majestic, fantastical landscape. Keep the person's face and features identical.`;
+const BEAUTY_PROMPT = `Apply a hyper-realistic beauty retouch. Enhance features naturally. Give the skin a flawless, glowing look with subtle makeup. Use soft, flattering lighting and a simple blurred background.`;
 
 const styles = [
     { label: "Аватар", prompt: AVATAR_PROMPT, Icon: UserCircleIcon },

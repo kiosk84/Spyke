@@ -138,7 +138,6 @@ export const PROMPT_LIBRARY: Category[] = [
                 {
                     title: 'Идея для рассказа',
                     description: 'Придумать завязку для короткого рассказа в жанре научной фантастики.',
-                    // Fix: Changed single quotes to backticks to handle the apostrophe in "isn't".
                     prompt: `Give me a story prompt for a short science fiction story. The story should involve a lonely space lighthouse keeper who receives a message that isn't from Earth.`,
                 },
                  {

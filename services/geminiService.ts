@@ -1,16 +1,15 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { ImageAspectRatio, Settings } from '../types';
-import { CHAT_SYSTEM_PROMPT, GOOGLE_API_KEY } from '../constants';
+import { CHAT_SYSTEM_PROMPT } from '../constants';
+
+// Hardcoded API keys and rotation logic have been removed.
+// The API key is now expected to be available in the execution environment as process.env.API_KEY.
 
 const getAiClient = () => {
-    // Приоритет: 1. Ключ, предоставленный пользователем из localStorage, 2. Переменная окружения.
-    const userApiKey = localStorage.getItem(GOOGLE_API_KEY);
-    const apiKey = userApiKey || process.env.API_KEY;
-
-    if (!apiKey) {
-        throw new Error("API-ключ Google не найден. Пожалуйста, добавьте его на странице пользователя.");
-    }
-    return new GoogleGenAI({ apiKey });
+    // As per instructions, the API key must be obtained from process.env.API_KEY.
+    // The execution environment is expected to have this variable pre-configured.
+    // The GoogleGenAI constructor will handle cases where the key is missing.
+    return new GoogleGenAI({ apiKey: process.env.API_KEY });
 };
 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {
@@ -131,7 +130,7 @@ export const generateImages = async (
     } catch (error) {
         console.error("Error generating images:", error);
         if (error instanceof Error && error.message.includes('API key not valid')) {
-             throw new Error("API-ключ Google недействителен. Проверьте конфигурацию сервера.");
+             throw new Error("Произошла ошибка с API-ключом Google. Пожалуйста, свяжитесь с поддержкой.");
         }
         throw new Error(`Не удалось сгенерировать изображения. ${error instanceof Error ? error.message : ''}`);
     }
@@ -186,7 +185,7 @@ export const editImage = async (
     } catch (error) {
         console.error("Error editing image:", error);
         if (error instanceof Error && error.message.includes('API key not valid')) {
-             throw new Error("API-ключ Google недействителен. Проверьте конфигурацию сервера.");
+             throw new Error("Произошла ошибка с API-ключом Google. Пожалуйста, свяжитесь с поддержкой.");
         }
         throw new Error(`Не удалось отредактировать изображение. ${error instanceof Error ? error.message : ''}`);
     }

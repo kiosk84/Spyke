@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import { Page } from '../../types';
 import RobotIcon from '../icons/RobotIcon';
@@ -37,15 +38,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       <h1 className="text-5xl md:text-6xl font-black font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta mb-4">
         AI EXPERT
       </h1>
-      <p className="text-lg md:text-xl text-light-secondary mb-4 max-w-3xl mx-auto">
+      <p className="text-lg md:text-xl text-light-secondary mb-12 max-w-3xl mx-auto">
         Откройте мир AI: общайтесь в чате, создавайте изображения, редактируйте фото и исследуйте огромную библиотеку готовых промптов.
       </p>
-      <div className="bg-dark-secondary/40 border border-brand-cyan/20 rounded-2xl p-4 max-w-2xl mx-auto mb-12 text-center backdrop-blur-sm">
-        <p className="text-md text-light-secondary/90">
-          Прежде чем начать, получите бесплатный API-ключ в <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-brand-cyan font-semibold hover:underline">Google AI Studio</a> и добавьте его в 
-          <button onClick={() => onNavigate('user')} className="text-brand-cyan font-semibold hover:underline ml-1">профиле пользователя</button>. Это откроет все возможности EXPERT!
-        </p>
-      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 justify-items-center">
         <FeatureCard
           title="Чат с AI"

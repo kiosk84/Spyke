@@ -11,21 +11,6 @@ const InfoPage: React.FC = () => {
           Добро пожаловать в «AI EXPERT» — вашу персональную творческую студию на базе искусственного интеллекта. Это приложение создано, чтобы помочь вам легко и быстро воплощать самые смелые визуальные идеи в жизнь, используя мощь передовых моделей от Google.
         </p>
         
-        <div className="bg-dark-tertiary border border-brand-cyan/30 rounded-lg p-4">
-            <h2 className="text-2xl font-semibold text-light-primary font-display mb-2">С чего начать?</h2>
-            <p>
-                Для работы приложения требуется ваш личный API-ключ от Google.
-            </p>
-            <ol className="list-decimal list-inside space-y-1 mt-2">
-                <li>Получите ваш бесплатный ключ в <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-brand-cyan font-semibold hover:underline">Google AI Studio</a>.</li>
-                <li>Перейдите на страницу «Пользователь» (иконка в правом верхнем углу).</li>
-                <li>Вставьте и сохраните ваш ключ.</li>
-            </ol>
-             <p className="text-xs mt-3 text-light-secondary/70">
-                Ваш ключ хранится безопасно только в вашем браузере и никуда не передаётся.
-            </p>
-        </div>
-
         <h2 className="text-2xl font-semibold text-light-primary pt-4 font-display">Наши Инструменты</h2>
         
         <div className="space-y-4">

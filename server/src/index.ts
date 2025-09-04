@@ -1,7 +1,5 @@
-// Fix: Changed import for Express to fix type resolution issues.
-// Fix: Separated express value and type imports to resolve type conflicts.
-import express from 'express';
-import type { Request, Response } from 'express';
+// Fix: Use `import * as express` for CommonJS compatibility and to resolve type conflicts.
+import * as express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import type { Response as FetchResponse } from 'node-fetch';
@@ -22,8 +20,9 @@ interface OllamaProxyRequestBody {
 }
 
 const ollamaProxyHandler = async (
-    req: Request<{ endpoint: string }, any, OllamaProxyRequestBody>,
-    res: Response
+    // Fix: Use types from the express namespace.
+    req: express.Request<{ endpoint: string }, any, OllamaProxyRequestBody>,
+    res: express.Response
 ) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;
