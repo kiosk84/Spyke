@@ -40,7 +40,7 @@ const NEON_MIND_PROMPT = `Apply a cyberpunk style with subtle neon highlights. C
 const CINEMATIC_PROMPT = `Apply a cinematic movie still look. Use high-contrast, dramatic lighting and a movie-style color grade. Keep the person's face identical.`;
 const ANIME_SOUL_PROMPT = `Redraw the person in a modern anime style, keeping their facial features recognizable. Change the background to a simple anime scene.`;
 const RETRO_PROMPT = `Apply a vintage 1950s photograph effect with soft focus, warm colors, and film grain. Keep the person's face, features, and gender identical.`;
-const GTA_STYLE_PROMPT = `Apply the Grand Theft Auto (GTA) cover art style. Set the background to a neon-lit city at night with a magenta-orange sunset. Use hyper-stylized realism with strong shadows and saturated colors. Add the text "ART_IRBIT" as a neon sign in the background.`;
+const GTA_STYLE_PROMPT = `Redraw the person in the iconic Grand Theft Auto (GTA) cover art style. Use bold black outlines, hyper-stylized realism, and saturated colors. Change the background to a neon-lit city at night with a magenta-orange sunset. Keep the person's face and features identical.`;
 const MYTHIC_PROMPT = `Change the clothing to detailed fantasy armor and the background to a majestic, fantastical landscape. Keep the person's face and features identical.`;
 const BEAUTY_PROMPT = `Apply a hyper-realistic beauty retouch. Enhance features naturally. Give the skin a flawless, glowing look with subtle makeup. Use soft, flattering lighting and a simple blurred background.`;
 
