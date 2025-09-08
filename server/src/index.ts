@@ -1,5 +1,5 @@
-// Fix: Use `import * as express` for CommonJS compatibility and to resolve type conflicts.
-import * as express from 'express';
+// Fix: Alias Request and Response from express to avoid type conflicts.
+import express, { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import type { Response as FetchResponse } from 'node-fetch';
@@ -20,9 +20,9 @@ interface OllamaProxyRequestBody {
 }
 
 const ollamaProxyHandler = async (
-    // Fix: Use types from the express namespace.
-    req: express.Request<{ endpoint: string }, any, OllamaProxyRequestBody>,
-    res: express.Response
+    // Fix: Use aliased express types for request and response.
+    req: ExpressRequest<{ endpoint: string }, any, OllamaProxyRequestBody>,
+    res: ExpressResponse
 ) => {
     const { endpoint } = req.params;
     const { ollamaUrl, ollamaModel, ...body } = req.body;

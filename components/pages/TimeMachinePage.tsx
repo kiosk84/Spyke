@@ -46,28 +46,28 @@ const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: "Reimagine this person in a classic 1950s portrait. Give them a hairstyle and outfit typical of the era, such as a neat side part or victory rolls, and a button-down shirt or a classic dress. Apply the look of a vintage Kodachrome color photograph with rich, slightly saturated colors. Preserve the person's recognizable facial features and likeness.",
-        regen: "Transform this into a timeless black and white photograph from the 1950s. The style should be elegant and simple, with soft lighting. Dress the person in classic 50s fashion. Ensure the person's likeness and facial features are clearly recognizable."
+        initial: "Change the person's hair and clothes to a classic 1950s style. Apply a vintage Kodachrome color photo effect. Keep the face and facial features identical to the original.",
+        regen: "Change the person's hair and clothes to an elegant 1950s style. Apply a classic black and white photo effect with soft lighting. Keep the face and facial features identical to the original."
     },
     '1960s': {
-        initial: "Recreate this portrait with a 1960s 'Swinging London' vibe. Give the person a mod hairstyle and fashion, like a sharp suit or a minidress. The photo should have the quality of a vintage color magazine shoot from the 60s, with vibrant colors. Keep the person's recognizable facial features and likeness.",
-        regen: "Give this portrait a late 1960s hippie-era look. Add long hair, maybe with a headband, and clothes with psychedelic or floral patterns. The photo should have a warm, sun-drenched, grainy film look. Preserve the person's likeness and facial features."
+        initial: "Change the person's hair and clothes to a 1960s mod fashion style. Apply the look of a vibrant, vintage 60s magazine photo. Keep the face and facial features identical to the original.",
+        regen: "Change the person's hair and clothes to a late 1960s hippie style. Apply a warm, grainy, sun-drenched film photo effect. Keep the face and facial features identical to the original."
     },
     '1970s': {
-        initial: "Transform this into a 1970s film photograph. The person should have a hairstyle and clothing characteristic of the 70s, like feathered hair and a shirt with a large collar. Apply a warm, slightly faded color palette with high contrast, typical of 70s film stock. The person's recognizable facial features and likeness must be preserved.",
-        regen: "Give this person a 1970s disco makeover. Think glamorous, sparkling outfits and voluminous hair. The background should be a dimly lit disco with colorful lights. The photo should feel energetic and stylish. Ensure the person's likeness is maintained."
+        initial: "Change the person's hair and clothes to a 1970s style, like feathered hair and a wide-collar shirt. Apply the look of a faded 70s film photograph with warm colors. Keep the face and facial features identical to the original.",
+        regen: "Change the person's hair and clothes to a glamorous 1970s disco style. Add a disco background with colorful lights. Keep the face and facial features identical to the original."
     },
     '1980s': {
-        initial: "Recreate this portrait with a bold 1980s aesthetic. Give the person big hair and an outfit with shoulder pads or neon colors. The photo should have a slightly glossy, studio-quality look with vibrant, saturated colors. Preserve the person's recognizable facial features and likeness.",
-        regen: "Transform this into an 80s rock or pop star-style photo. Use dramatic lighting, maybe with a haze or smoke effect. The fashion should be edgy, like a leather jacket or ripped jeans. Keep the person's likeness and facial features clearly recognizable."
+        initial: "Change the person's hair to a big 80s style and their clothes to include neon colors or shoulder pads. Apply a glossy, saturated 80s studio photo effect. Keep the face and facial features identical to the original.",
+        regen: "Change the person's style to an 80s rock star look with a leather jacket. Use dramatic lighting and a smoke effect. Keep the face and facial features identical to the original."
     },
     '1990s': {
-        initial: "Give this portrait a 1990s grunge look. The person should have a casual, layered outfit and a relaxed hairstyle. The photo should look like it was taken on 35mm film, with natural lighting and a slightly grainy texture. Preserve the person's recognizable facial features and likeness.",
-        regen: "Transform this into a bright, upbeat 90s pop-style portrait. Use vibrant colors, and give the person a fun, trendy 90s hairstyle and outfit. The lighting should be clean and bright, like a teen magazine photoshoot. Ensure the person's likeness is maintained."
+        initial: "Change the person's hair and clothes to a 1990s grunge style with layered, casual clothing. Apply the look of a grainy 35mm film photo. Keep the face and facial features identical to the original.",
+        regen: "Change the person's hair and clothes to a bright, trendy 90s pop style. Apply a clean, vibrant photo effect like a teen magazine. Keep the face and facial features identical to the original."
     },
     '2000s': {
-        initial: "Recreate this portrait to look like a photo taken with an early 2000s digital camera. The person should wear Y2K fashion, like a denim jacket or a graphic tee. The photo should have the characteristic look of early digital photography, with sharp focus and slightly harsh on-camera flash. Preserve the person's recognizable facial features and likeness.",
-        regen: "Give this person a mid-2000s indie or emo style. Think side-swept bangs, a band t-shirt, and skinny jeans. The photo should have a slightly desaturated, moody look, as if taken for a social media profile of that era. Keep the person's likeness clearly recognizable."
+        initial: "Change the person's clothes to Y2K fashion. Apply the effect of an early 2000s digital camera with harsh flash. Keep the face and facial features identical to the original.",
+        regen: "Change the person's hair and clothes to a mid-2000s emo style, like side-swept bangs and a band t-shirt. Apply a moody, desaturated photo effect. Keep the face and facial features identical to the original."
     },
 };
 

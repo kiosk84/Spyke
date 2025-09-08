@@ -147,9 +147,10 @@ export const sendMessageToChatStream = async (message: string, onChunk: (chunk: 
 export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'aspectRatio'>): Promise<string> => {
     const metaPrompt = `
 You are an expert prompt engineer for AI image generation.
-Create a single, highly-detailed, professional, and artistically rich prompt in English.
-The final output must be a comma-separated list of keywords, concepts, and stylistic descriptors.
-Do not add any conversational text or explanations.
+Your task is to synthesize the user's request into a single, highly-detailed, professional, and artistically rich prompt in English.
+The final output must be a comma-separated list of keywords, concepts, and stylistic descriptors, similar to professional prompts found on platforms like Midjourney or DALL-E.
+Combine the core idea with the specified style, lighting, angle, and mood to create a rich set of descriptors.
+Do not add any conversational text, explanations, or headings. Only output the final prompt.
 
 ---
 USER'S REQUEST DETAILS:
@@ -158,9 +159,9 @@ USER'S REQUEST DETAILS:
 - Lighting: ${settings.lighting}
 - Camera Angle: ${settings.angle}
 - Mood: ${settings.mood}
-- Negative Prompt (avoid these): ${settings.negativePrompt}
+- Negative Prompt (what to avoid): ${settings.negativePrompt}
 ---
-Generate the prompt.
+Generate the comma-separated prompt now.
 `;
     const data = await proxyFetch('generate', {
         prompt: metaPrompt,

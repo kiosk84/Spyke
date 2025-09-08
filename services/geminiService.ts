@@ -17,9 +17,9 @@ export const enhancePrompt = async (settings: Omit<Settings, 'imageCount' | 'asp
     const model = 'gemini-2.5-flash';
     const metaPrompt = `
 You are an expert prompt engineer for AI image generation.
-Your task is to synthesize the user's request into a single, coherent, and vivid paragraph in English. This paragraph will be used as a prompt.
-Combine the core idea with the specified style, lighting, angle, and mood to create a rich scene description.
-Do not just list the keywords. Weave them into a descriptive narrative.
+Your task is to synthesize the user's request into a single, highly-detailed, professional, and artistically rich prompt in English.
+The final output must be a comma-separated list of keywords, concepts, and stylistic descriptors, similar to professional prompts found on platforms like Midjourney or DALL-E.
+Combine the core idea with the specified style, lighting, angle, and mood to create a rich set of descriptors.
 Do not add any conversational text, explanations, or headings. Only output the final prompt.
 
 ---
@@ -31,7 +31,7 @@ USER'S REQUEST DETAILS:
 - Mood: ${settings.mood}
 - Negative Prompt (what to avoid): ${settings.negativePrompt}
 ---
-Generate the single-paragraph prompt now.
+Generate the comma-separated prompt now.
 `;
     try {
         const response = await ai.models.generateContent({
