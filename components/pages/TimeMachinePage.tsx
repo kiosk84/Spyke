@@ -46,28 +46,28 @@ const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: "Change the person's hair and clothes to a classic 1950s style. Apply a vintage Kodachrome color photo effect. Keep the face and facial features identical to the original.",
-        regen: "Change the person's hair and clothes to an elegant 1950s style. Apply a classic black and white photo effect with soft lighting. Keep the face and facial features identical to the original."
+        initial: "A 1950s style portrait. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: authentic vintage Kodachrome color film, high saturation, rich warm tones, realistic film grain, soft focus, classic 1950s fashion, era-appropriate hairstyle like a pompadour or bouffant, natural sunlight, hyperrealistic.",
+        regen: "A 1950s Old Hollywood studio portrait. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: classic black and white photograph, high contrast, deep blacks, soft glamorous studio lighting, Rembrandt lighting, elegant formal wear, glamorous styled hair, flawless skin retouching, photographic quality."
     },
     '1960s': {
-        initial: "Change the person's hair and clothes to a 1960s mod fashion style. Apply the look of a vibrant, vintage 60s magazine photo. Keep the face and facial features identical to the original.",
-        regen: "Change the person's hair and clothes to a late 1960s hippie style. Apply a warm, grainy, sun-drenched film photo effect. Keep the face and facial features identical to the original."
+        initial: "A 1960s mod fashion photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 60s fashion magazine photo, vibrant but slightly desaturated colors, high contrast, clean graphic look, bright studio lighting, sharp mod suit or dress with bold geometric patterns, sleek bob or bouffant hairstyle, professional.",
+        regen: "A late 1960s hippie photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 35mm film photo, warm sun-drenched saturated tones, heavy film grain, authentic lens flare, natural golden hour sunlight, tie-dye shirt, bell-bottoms, long natural hair with a headband, authentic vintage photo."
     },
     '1970s': {
-        initial: "Change the person's hair and clothes to a 1970s style, like feathered hair and a wide-collar shirt. Apply the look of a faded 70s film photograph with warm colors. Keep the face and facial features identical to the original.",
-        regen: "Change the person's hair and clothes to a glamorous 1970s disco style. Add a disco background with colorful lights. Keep the face and facial features identical to the original."
+        initial: "A 1970s style portrait. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: faded 70s Polaroid photograph, warm yellowish tones, low contrast, soft focus, characteristic Polaroid border, natural hazy light, wide-collar shirt, earthy tones, feathered hairstyle, authentic, realistic textures.",
+        regen: "A 1970s disco photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 70s disco club, dynamic colorful disco lights, disco ball, motion blur, lens flare from lights, sparkling glamorous disco attire, big voluminous disco hair, energetic, photographic quality."
     },
     '1980s': {
-        initial: "Change the person's hair to a big 80s style and their clothes to include neon colors or shoulder pads. Apply a glossy, saturated 80s studio photo effect. Keep the face and facial features identical to the original.",
-        regen: "Change the person's style to an 80s rock star look with a leather jacket. Use dramatic lighting and a smoke effect. Keep the face and facial features identical to the original."
+        initial: "An 80s studio portrait. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: glossy 80s studio photograph, highly saturated vibrant colors, clean sharp look, hard bright studio lighting, neon colors, shoulder pads, big voluminous teased hairstyle, high quality, professional, detailed.",
+        regen: "An 80s rock album cover. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 80s album cover art, dramatic colored spotlights, smoke machine effect, moody high-contrast colors, film grain, leather jacket, ripped jeans, wild rock star hairstyle, iconic, high resolution, professional."
     },
     '1990s': {
-        initial: "Change the person's hair and clothes to a 1990s grunge style with layered, casual clothing. Apply the look of a grainy 35mm film photo. Keep the face and facial features identical to the original.",
-        regen: "Change the person's hair and clothes to a bright, trendy 90s pop style. Apply a clean, vibrant photo effect like a teen magazine. Keep the face and facial features identical to the original."
+        initial: "A 1990s grunge photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: grainy 35mm film photo, muted desaturated colors, slightly underexposed, natural overcast day lighting, flannel shirt, band t-shirt, ripped jeans, messy unkempt hairstyle, authentic, raw, realistic.",
+        regen: "A 90s pop style photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 90s teen magazine style, clean vibrant saturated colors, bright even studio lighting, simple pastel-colored studio backdrop, colorful windbreaker, high-waisted jeans, high ponytail with scrunchie, sharp, high quality."
     },
     '2000s': {
-        initial: "Change the person's clothes to Y2K fashion. Apply the effect of an early 2000s digital camera with harsh flash. Keep the face and facial features identical to the original.",
-        regen: "Change the person's hair and clothes to a mid-2000s emo style, like side-swept bangs and a band t-shirt. Apply a moody, desaturated photo effect. Keep the face and facial features identical to the original."
+        initial: "A Y2K era photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: early 2000s consumer digital camera photo, slightly oversaturated cool tones, harsh on-camera flash, slight pixelation, Y2K fashion, low-rise jeans, shiny fabrics, authentic low-fi look.",
+        regen: "A mid-2000s emo self-portrait. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: MySpace-style photo, high-angle selfie, moody desaturated color filter, heavy vignetting, side-swept dyed bangs, band t-shirt, skinny jeans, authentic low-resolution digital photo."
     },
 };
 

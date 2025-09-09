@@ -34,15 +34,16 @@ interface EditorPageProps {
     onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
 }
 
-const AVATAR_PROMPT = `Apply a soft digital painting style to the person. Change the background to a simple, blurred park at sunset. Do not change the person's face or features.`;
-const OIL_PAINTING_PROMPT = `Apply a classical oil painting style with textured brushstrokes to the person. Make the background dark and simple. Keep the person's face and features the same.`;
-const NEON_MIND_PROMPT = `Apply a cyberpunk style with subtle neon highlights. Change the background to a dark, rainy city with neon lights. Do not alter the person's face.`;
-const CINEMATIC_PROMPT = `Apply a cinematic movie still look. Use high-contrast, dramatic lighting and a movie-style color grade. Keep the person's face identical.`;
-const ANIME_SOUL_PROMPT = `Redraw the person in a modern anime style, keeping their facial features recognizable. Change the background to a simple anime scene.`;
-const RETRO_PROMPT = `Apply a vintage 1950s photograph effect with soft focus, warm colors, and film grain. Keep the person's face, features, and gender identical.`;
-const GTA_STYLE_PROMPT = `Redraw the person in the iconic Grand Theft Auto (GTA) cover art style. Use bold black outlines, hyper-stylized realism, and saturated colors. Change the background to a neon-lit city at night with a magenta-orange sunset. Keep the person's face and features identical.`;
-const MYTHIC_PROMPT = `Change the clothing to detailed fantasy armor and the background to a majestic, fantastical landscape. Keep the person's face and features identical.`;
-const BEAUTY_PROMPT = `Apply a hyper-realistic beauty retouch. Enhance features naturally. Give the skin a flawless, glowing look with subtle makeup. Use soft, flattering lighting and a simple blurred background.`;
+const AVATAR_PROMPT = `A hyper-detailed, photorealistic digital painting of the person. {"style": "painterly, soft digital art, Artstation", "subject": {"skin": "authentic, slightly idealized texture, glowing, perfect pores", "hair": "realistic flow, detailed strands, individual hairs visible"}, "lighting": {"type": "warm and soft", "time_of_day": "golden hour", "effect": "subtle bloom, lens flare"}, "camera": {"type": "portrait lens, DSLR", "aperture": "f/1.8", "effect": "shallow depth of field, sharp focus on eyes"}, "background": {"location": "park at sunset", "effect": "beautifully blurred, prominent bokeh, out of focus"}, "quality": "masterpiece, 8k, ultra-detailed, professionally retouched, photographic quality"}. IMPORTANT: The person's face, gender, and core features must remain identical to the original photo.`;
+const OIL_PAINTING_PROMPT = `Transform the photo into a classical oil painting. {"style": "Rembrandt, classical realism, oil on canvas", "technique": {"brushstrokes": "textured, visible, impasto", "details": "fine, meticulous"}, "lighting": {"type": "dramatic chiaroscuro", "source": "single strong light source", "shadows": "deep, contrasting"}, "composition": {"background": "simple, dark, non-distracting texture"}, "quality": "masterpiece, authentic textures, high resolution scan"}. IMPORTANT: The person's likeness, face, and features must be preserved.`;
+const NEON_MIND_PROMPT = `Apply a high-detail cyberpunk aesthetic. {"style": "cinematic, Blade Runner aesthetic, photorealistic", "subject_details": {"clothing": "subtle glowing neon circuits", "effects": "futuristic holographic elements"}, "environment": {"location": "dark, rain-slicked city street at night", "details": "vibrant neon signs reflecting on wet pavement, atmospheric steam"}, "lighting": {"type": "high contrast, neon, volumetric", "mood": "moody, mysterious"}, "camera": {"type": "anamorphic lens", "effect": "film grain"}, "quality": "8k, hyperrealistic, detailed textures"}. IMPORTANT: Do not alter the person's face or physical features.`;
+const CINEMATIC_PROMPT = `Re-render the image as a cinematic movie still. {"genre": "modern thriller", "lighting": {"type": "dramatic, high-contrast", "color_grading": "teal and orange"}, "camera": {"lens": "anamorphic", "aperture": "f/2.2", "effect": "shallow depth of field, sharp focus on subject, subtle film grain"}, "composition": {"framing": "rule of thirds"}, "quality": "cinematic, 4k, professional color grade, realistic physics"}. IMPORTANT: The person's face and expression must remain identical.`;
+const ANIME_SOUL_PROMPT = `Redraw the person in a modern anime style. {"style": "high-quality, modern anime, inspired by Makoto Shinkai", "art_details": {"lines": "clean, precise", "colors": "vibrant, saturated, beautiful gradients", "eyes": "expressive, detailed, glistening"}, "background": {"type": "scenic anime landscape", "details": "soft clouds, detailed foliage"}, "quality": "masterpiece, 4k, studio quality"}. IMPORTANT: Crucially, maintain the person's recognizable facial features, hair color, and style.`;
+const RETRO_PROMPT = `Apply an authentic vintage photograph effect. {"era": "1950s", "photo_style": {"type": "Kodachrome color film", "color_tone": "warm sepia tones", "focus": "soft focus", "effects": "realistic film grain, light leaks"}, "subject_details": {"clothing": "era-appropriate 1950s fashion", "hairstyle": "classic 1950s style"}, "quality": "authentic, high-resolution scan of a vintage photo"}. IMPORTANT: Keep the person's face, features, and gender identical to the original.`;
+const GTA_STYLE_PROMPT = `Redraw the person in the iconic GTA art style. {"style": "Grand Theft Auto cover art, hyper-stylized realism", "art_details": {"outlines": "bold, black ink", "shading": "cel-shaded colors", "lighting": "dramatic character lighting, high contrast"}, "background": {"location": "vibrant, stylized city skyline at sunset", "details": "inspired by Los Santos or Vice City"}, "quality": "official artwork quality, 4k, sharp details"}. IMPORTANT: The person's facial structure and key features must remain identical.`;
+const MYTHIC_PROMPT = `Transform the person into a fantasy hero. {"style": "epic fantasy art, hyper-detailed, photorealistic", "subject": {"clothing": "ornate, hyper-detailed fantasy armor", "options": ["elven silver filigree", "dwarven forged steel"]}, "environment": {"background": "majestic, fantastical landscape", "details": "epic mountains, dramatic sky, two moons"}, "lighting": {"type": "epic, god-like, volumetric rays"}, "quality": "masterpiece, trending on Artstation, by Greg Rutkowski"}. IMPORTANT: Keep the person's face and features identical.`;
+const BEAUTY_PROMPT = `Apply a hyper-realistic beauty retouch. {"style": "fashion magazine cover, hyperrealistic", "subject_retouch": {"skin": "flawless, glowing, perfect texture, no plastic look", "makeup": "subtle, professional, enhances natural features", "eyes": "sparkling, clear, detailed iris"}, "lighting": {"type": "soft, flattering studio lighting", "equipment": "beauty dish, fill lights"}, "background": {"type": "simple, blurred, neutral-colored studio backdrop"}, "quality": "ultra-high resolution, professional retouching, photographic quality"}. IMPORTANT: Do not change the person's core facial structure.`;
+
 
 const styles = [
     { label: "Аватар", prompt: AVATAR_PROMPT, Icon: UserCircleIcon },
@@ -192,9 +193,22 @@ const EditorPage: React.FC<EditorPageProps> = ({ balance, onBalanceChange }) => 
             </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-7">
-                {originalImage && (
+        {!originalImage ? (
+             <div className="flex justify-center items-center min-h-[400px] animate-fade-in">
+                <div 
+                    className="relative w-full max-w-lg border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
+                    onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
+                    onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
+                >
+                    <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
+                    <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
+                    <p className="text-lg text-light-secondary"><span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите</p>
+                    <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
+                </div>
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-7">
                     <div className="bg-dark-secondary p-6 rounded-2xl shadow-lg border border-dark-tertiary/50 space-y-6 animate-fade-in">
                         <div>
                             <h2 className="text-xl font-bold text-light-primary mb-3 font-display">Применить стиль</h2>
@@ -251,22 +265,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ balance, onBalanceChange }) => 
                             </Button>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
 
-            <div className="lg:col-span-5">
-                {!originalImage ? (
-                    <div 
-                        className="relative w-full h-full min-h-[400px] lg:min-h-full border-2 border-dashed border-gray-600 rounded-lg p-10 text-center flex flex-col justify-center items-center hover:border-brand-cyan transition-colors duration-300"
-                        onDrop={(e: DragEvent<HTMLDivElement>) => { e.preventDefault(); handleFileDrop(e.dataTransfer.files); }}
-                        onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
-                    >
-                        <input type="file" accept="image/png, image/jpeg, image/webp" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => handleFileDrop(e.target.files)} />
-                        <ImageIcon className="w-16 h-16 text-gray-400 mb-4" />
-                        <p className="text-lg text-light-secondary"><span className="font-semibold text-brand-cyan">Нажмите для загрузки</span> или перетащите</p>
-                        <p className="text-sm text-gray-500 mt-1">PNG, JPG, WEBP (до 4MB)</p>
-                    </div>
-                ) : (
+                <div className="lg:col-span-5">
                     <div className="sticky top-24">
                         <div className="relative w-full mx-auto group">
                             <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg shadow-lg bg-dark-tertiary">
@@ -323,9 +324,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ balance, onBalanceChange }) => 
                             </button>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
-        </div>
+        )}
         
         {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center mt-4 max-w-3xl mx-auto">{error}</div>}
         
