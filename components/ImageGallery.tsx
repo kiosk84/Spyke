@@ -1,14 +1,17 @@
+
 import React, { useState } from 'react';
 import Loader from './common/Loader';
 import EnlargeIcon from './icons/EnlargeIcon';
 import ImageModal from './ImageModal';
+import ImageSkeleton from './common/ImageSkeleton';
 
 interface ImageGalleryProps {
   images: string[];
   isGenerating: boolean;
+  generatingCount?: number;
 }
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ images, isGenerating }) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ images, isGenerating, generatingCount = 1 }) => {
   const [modalState, setModalState] = useState<{ isOpen: boolean; index: number | null }>({
     isOpen: false,
     index: null,
@@ -38,9 +41,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, isGenerating }) => 
   const renderContent = () => {
     if (isGenerating && images.length === 0) {
       return (
-        <div className="text-center">
-          <Loader size="lg" />
-          <p className="mt-4 text-light-secondary">Магия в процессе... Это может занять минуту.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full self-start">
+          {Array.from({ length: generatingCount }).map((_, i) => (
+            <ImageSkeleton key={i} />
+          ))}
         </div>
       );
     }

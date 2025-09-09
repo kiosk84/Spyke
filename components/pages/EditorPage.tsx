@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, DragEvent } from 'react';
 import Button from '../common/Button';
 import Loader from '../common/Loader';
@@ -6,7 +7,7 @@ import MagicWandIcon from '../icons/MagicWandIcon';
 import ImageIcon from '../icons/ImageIcon';
 import TrashIcon from '../icons/TrashIcon';
 import { ImageAspectRatio } from '../../types';
-import ImageModal from '../ImageModal';
+import ComparisonModal from '../ComparisonModal';
 import EnlargeIcon from '../icons/EnlargeIcon';
 import ArrowsRightLeftIcon from '../icons/ArrowsRightLeftIcon';
 import UserCircleIcon from '../icons/UserCircleIcon';
@@ -34,15 +35,15 @@ interface EditorPageProps {
     onBalanceChange: (newBalance: number | ((prev: number) => number)) => void;
 }
 
-const AVATAR_PROMPT = "Make a beautiful, hyper-detailed digital art portrait of this person. Use soft, warm golden hour lighting and a blurred background. Keep the person's face looking exactly the same.";
-const OIL_PAINTING_PROMPT = "Transform this into a classic oil painting, like a Rembrandt portrait. Use thick, textured brushstrokes and dramatic lighting. Keep the person's face recognizable.";
-const NEON_MIND_PROMPT = "Give this a Blade Runner cyberpunk feel. Add subtle glowing neon details to their clothes and put them on a rainy, neon-lit city street at night. Keep the person's face the same.";
-const CINEMATIC_PROMPT = "Make this look like a still from a modern movie. Apply a cinematic teal and orange color grade, with dramatic lighting and a little film grain. Don't change the person's face.";
-const ANIME_SOUL_PROMPT = "Redraw this person in a beautiful, modern anime style, like a Makoto Shinkai film. Make sure they are still recognizable.";
-const RETRO_PROMPT = "Give this an authentic 1950s vintage photo look, as if shot on old Kodachrome film. Use warm sepia tones and add some film grain. Keep the person's face identical.";
-const GTA_STYLE_PROMPT = "Redraw this person in the famous Grand Theft Auto cover art style, with bold outlines and cel-shaded colors. Make sure the person's face is still clearly them.";
-const MYTHIC_PROMPT = "Turn this person into an epic fantasy hero. Give them ornate, detailed armor and place them in a majestic fantasy landscape. Keep their face the same.";
-const BEAUTY_PROMPT = "Apply a high-end beauty retouch, like a fashion magazine cover. Give the skin a flawless, glowing look and use soft studio lighting. Don't change their facial structure.";
+const AVATAR_PROMPT = "Create a beautiful digital art portrait of this person. Use soft lighting and a simple background. Make sure they are still recognizable.";
+const OIL_PAINTING_PROMPT = "Transform this photo into a classic oil painting with textured brushstrokes and dramatic lighting, preserving the person's likeness.";
+const NEON_MIND_PROMPT = "Give this a cyberpunk feel. Add glowing neon details to the scene. The person should still be recognizable.";
+const CINEMATIC_PROMPT = "Make this look like a movie still. Apply a cinematic color grade and lighting, while keeping the person recognizable.";
+const ANIME_SOUL_PROMPT = "Redraw this person in a modern anime style, making sure they are still recognizable.";
+const RETRO_PROMPT = "Give this an authentic vintage photo look with warm tones and film grain. The person should still be recognizable.";
+const GTA_STYLE_PROMPT = "Redraw this person in the GTA cover art style, with bold outlines and colors, ensuring they are still recognizable.";
+const MYTHIC_PROMPT = "Turn this person into an epic fantasy hero. Give them detailed armor and a fantasy background. The person should still be recognizable.";
+const BEAUTY_PROMPT = "Apply a high-end beauty retouch. Give the skin a smooth, glowing look and use soft studio lighting, while preserving their natural features.";
 
 
 const styles = [
@@ -342,12 +343,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ balance, onBalanceChange }) => 
             </div>
         )}
 
-        {isModalOpen && editedImage && (
-            <ImageModal
-                images={[editedImage]}
-                currentIndex={0}
+        {isModalOpen && editedImage && originalImage && (
+            <ComparisonModal
+                isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onNavigate={() => {}}
+                originalImage={originalImage.previewUrl}
+                editedImage={editedImage}
             />
         )}
     </div>

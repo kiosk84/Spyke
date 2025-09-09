@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, DragEvent } from 'react';
 import * as aiService from '../../services/aiService';
 import Button from '../common/Button';
@@ -9,6 +10,8 @@ import ClockIcon from '../icons/ClockIcon';
 import { COST_TIME_MACHINE_PER_DECADE } from '../../constants';
 import CoinIcon from '../icons/CoinIcon';
 import ArrowsRightLeftIcon from '../icons/ArrowsRightLeftIcon';
+import EnlargeIcon from '../icons/EnlargeIcon';
+import ComparisonModal from '../ComparisonModal';
 
 interface UploadedImage {
     file: File;
@@ -47,28 +50,28 @@ const DECADES = ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s'];
 
 const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
     '1950s': {
-        initial: "Turn this into an authentic 1950s photo. Give it the look of vintage Kodachrome film with warm colors. Place the person in a classic American diner with a 50s hairstyle and clothes. Keep their face the same.",
+        initial: "Make this look like an authentic 1950s color photo. Place the person in a classic American diner with a 50s hairstyle and clothes. The person should be recognizable.",
         regen: "Make this a glamorous 1950s Old Hollywood black and white portrait. Use dramatic, soft studio lighting and elegant formal wear. Make sure the person is still recognizable."
     },
     '1960s': {
-        initial: "Give this a 1960s mod fashion photoshoot style. Use vibrant pop art colors against a bold, solid-colored background. Keep the person's face identical.",
-        regen: "Recreate this as if it was taken at a 1960s hippie music festival. It should look like a warm, grainy 35mm film photo with sun flare. Dress them in hippie fashion. Keep their face recognizable."
+        initial: "Give this a 1960s fashion style. Use vibrant pop art colors against a bold background. The person should be recognizable.",
+        regen: "Recreate this as if it was taken at a 1960s music festival. It should look like a warm, grainy film photo. Dress them in hippie fashion. Keep their face recognizable."
     },
     '1970s': {
-        initial: "Make this look like an authentic 1970s Polaroid photo. Use faded, warm yellowish colors and soft focus, and place them in a room with wood paneling. Make sure the person's face is preserved.",
-        regen: "Transform this into a lively 1970s disco scene. Put the person under colorful disco lights with a disco ball in the background. Give them glamorous disco clothes and big hair. Keep their face the same."
+        initial: "Make this look like a photo from the 1970s. Use faded, warm colors and soft focus, and place them in a room with vintage decor. The person should be recognizable.",
+        regen: "Transform this into a lively 1970s disco scene. Put the person under colorful disco lights. Give them glamorous disco clothes. The person should be recognizable."
     },
     '1980s': {
-        initial: "Create a glossy 1980s studio portrait. The background should be a neon laser grid. Use saturated, vibrant colors and give the person a big, teased hairstyle and 80s clothes. Don't change the person's face.",
-        regen: "Make this look like an 80s rock album cover. The scene should be dramatic, with colored spotlights and smoke. Dress them in a leather jacket. Don't change their facial features."
+        initial: "Create a glossy 1980s studio portrait. The background should be a neon design. Use saturated, vibrant colors and give the person an 80s hairstyle and clothes. The person should be recognizable.",
+        regen: "Make this look like an 80s rock album cover. The scene should be dramatic, with colored spotlights and smoke. Dress them in a leather jacket. Their facial features should be recognizable."
     },
     '1990s': {
-        initial: "Recreate this in a 90s grunge style. It should look like a grainy 35mm film photo with muted colors. Dress the person in a flannel shirt. Keep their face the same.",
-        regen: "Transform this into a 90s pop music style photo, like from a teen magazine. Use bright, saturated colors and simple studio lighting against a pastel background. Don't change their face."
+        initial: "Recreate this in a 90s style. It should look like a grainy film photo with muted colors. Dress the person in a flannel shirt. The person should be recognizable.",
+        regen: "Transform this into a 90s pop music style photo. Use bright, saturated colors and simple studio lighting against a pastel background. Their face should be recognizable."
     },
     '2000s': {
-        initial: "Make this look like it was taken on an early 2000s digital camera. Use oversaturated cool colors, a harsh on-camera flash, and give them Y2K fashion. Don't change their face.",
-        regen: "Recreate this as a mid-2000s social media photo from a high angle. Use a moody, desaturated filter with vignetting. Give them side-swept hair. Make sure their face is still recognizable."
+        initial: "Make this look like a photo from the early 2000s. Use oversaturated colors, a harsh flash, and give them Y2K fashion. Their face should be recognizable.",
+        regen: "Recreate this as a mid-2000s social media photo taken from a high angle. Use a moody, desaturated filter. Give them side-swept hair. Make sure their face is still recognizable."
     },
 };
 
@@ -82,6 +85,7 @@ const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceCha
     const [activeDecade, setActiveDecade] = useState<'original' | string>('original');
     const [sliderPosition, setSliderPosition] = useState(50);
     const [regenerationCounter, setRegenerationCounter] = useState<Record<string, number>>({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
     
     const costForAll = DECADES.length * COST_TIME_MACHINE_PER_DECADE;
     const hasSufficientBalanceForAll = balance >= costForAll;
@@ -247,6 +251,9 @@ const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceCha
                                 className="absolute inset-0 w-full h-full cursor-ew-resize opacity-0 z-30"
                                 aria-label="Image comparison slider"
                             />
+                             <button onClick={() => setIsModalOpen(true)} className="absolute bottom-4 right-4 z-40 p-3 bg-white/20 rounded-full text-white backdrop-blur-sm hover:bg-white/30 transition-colors" aria-label="Увеличить">
+                                <EnlargeIcon className="w-6 h-6" />
+                            </button>
                         </>
                     ) : null}
                 </div>
@@ -381,6 +388,15 @@ const TimeMachinePage: React.FC<TimeMachinePageProps> = ({ balance, onBalanceCha
                         </Button>
                     </div>
                 </div>
+            )}
+             {isModalOpen && originalImage && activeDecade !== 'original' && generatedImages[activeDecade]?.url && (
+                <ComparisonModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    originalImage={originalImage.previewUrl}
+                    editedImage={generatedImages[activeDecade]!.url!}
+                    title={`Стиль ${activeDecade}`}
+                />
             )}
         </div>
     );

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { PROMPT_LIBRARY, Category, SubCategory, Prompt } from '../../prompts';
 import { CUSTOM_PROMPTS_KEY } from '../../constants';
@@ -8,6 +7,7 @@ import UserIcon from '../icons/UserIcon';
 import Button from '../common/Button';
 import AddPromptModal from '../AddPromptModal';
 import PromptCard from '../PromptCard';
+import Squares2x2Icon from '../icons/Squares2x2Icon';
 
 
 const PromptLibraryPage: React.FC = () => {
@@ -15,6 +15,7 @@ const PromptLibraryPage: React.FC = () => {
     const [library, setLibrary] = useState<Category[]>(PROMPT_LIBRARY);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [selectedSubCategory, setSelectedSubCategory] = useState<SubCategory | null>(null);
+    const [activeFilter, setActiveFilter] = useState<string>('All');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
@@ -24,6 +25,9 @@ const PromptLibraryPage: React.FC = () => {
         const customPrompts: Prompt[] = savedPromptsJSON ? JSON.parse(savedPromptsJSON) : [];
 
         const existingLibrary = [...PROMPT_LIBRARY];
+        
+        // Remove existing custom category if it's there, to prevent duplicates
+        const baseLibrary = existingLibrary.filter(cat => cat.name !== 'Мои Промпты');
 
         if (customPrompts.length > 0) {
             const customCategory: Category = {
@@ -32,9 +36,9 @@ const PromptLibraryPage: React.FC = () => {
                 Icon: UserIcon,
                 subCategories: [{ name: 'Все', prompts: customPrompts }]
             };
-            setLibrary([...existingLibrary, customCategory]);
+            setLibrary([...baseLibrary, customCategory]);
         } else {
-            setLibrary(existingLibrary);
+            setLibrary(baseLibrary);
         }
     };
     
@@ -62,12 +66,35 @@ const PromptLibraryPage: React.FC = () => {
         return results;
     }, [searchTerm, library]);
     
+    const filteredLibrary = useMemo(() => {
+        if (activeFilter === 'All') {
+            return library;
+        }
+        return library.filter(cat => cat.name === activeFilter);
+    }, [activeFilter, library]);
+
     const handleGoBack = () => {
         if (selectedSubCategory) {
             setSelectedSubCategory(null);
         } else if (selectedCategory) {
             setSelectedCategory(null);
         }
+    };
+    
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+        // Reset navigation and filtering when user starts searching
+        setActiveFilter('All');
+        setSelectedCategory(null);
+        setSelectedSubCategory(null);
+    };
+    
+    const handleFilterClick = (categoryName: string) => {
+        setActiveFilter(categoryName);
+        // Reset search and navigation
+        setSearchTerm('');
+        setSelectedCategory(null);
+        setSelectedSubCategory(null);
     };
 
     const handleOpenAddModal = () => {
@@ -96,7 +123,8 @@ const PromptLibraryPage: React.FC = () => {
         
         localStorage.setItem(CUSTOM_PROMPTS_KEY, JSON.stringify(customPrompts));
         loadCustomPrompts(); // Reload to update the UI
-        handleGoBack(); // Reset view to show updated list
+        setSelectedCategory(null); // Reset view to show updated list
+        setSelectedSubCategory(null);
     };
     
     const handleDeletePrompt = (promptId: string) => {
@@ -106,7 +134,8 @@ const PromptLibraryPage: React.FC = () => {
             customPrompts = customPrompts.filter(p => p.id !== promptId);
             localStorage.setItem(CUSTOM_PROMPTS_KEY, JSON.stringify(customPrompts));
             loadCustomPrompts();
-            handleGoBack();
+            setSelectedCategory(null);
+            setSelectedSubCategory(null);
         }
     };
 
@@ -135,24 +164,55 @@ const PromptLibraryPage: React.FC = () => {
         );
     }
     
+    const FilterButton = ({ label, Icon, isActive, onClick }: { label: string, Icon: React.ElementType, isActive: boolean, onClick: () => void }) => {
+        const baseClasses = "flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-all duration-200 border-2";
+        const activeClasses = "bg-brand-cyan/20 border-brand-cyan text-white";
+        const inactiveClasses = "bg-dark-secondary border-dark-tertiary text-light-secondary hover:border-brand-cyan/50 hover:text-white";
+        
+        return (
+            <button onClick={onClick} className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
+                <Icon className="w-5 h-5" />
+                <span>{label}</span>
+            </button>
+        );
+    };
+
     return (
         <div className="w-full max-w-6xl mx-auto animate-fade-in">
             {renderHeader()}
             
-            {/* Search Bar */}
-            <div className="relative mb-8">
+            <div className="relative mb-6">
                 <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={handleSearchChange}
                     placeholder="Найти промпт для любой задачи..."
                     className="w-full bg-dark-secondary border border-dark-tertiary text-white rounded-lg focus:ring-brand-cyan focus:border-brand-cyan block p-4 pl-12 text-lg"
                 />
                 <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
             </div>
 
+            {!searchTerm.trim() && !selectedCategory && !selectedSubCategory && (
+                <div className="flex items-center gap-3 mb-8 flex-wrap">
+                    <FilterButton 
+                        label="Все"
+                        Icon={Squares2x2Icon}
+                        isActive={activeFilter === 'All'}
+                        onClick={() => handleFilterClick('All')}
+                    />
+                    {PROMPT_LIBRARY.map(cat => (
+                         <FilterButton 
+                            key={cat.name}
+                            label={cat.name}
+                            Icon={cat.Icon}
+                            isActive={activeFilter === cat.name}
+                            onClick={() => handleFilterClick(cat.name)}
+                        />
+                    ))}
+                </div>
+            )}
+
             {searchTerm.trim() ? (
-                // Search Results View
                 <div>
                      <h2 className="text-2xl font-bold font-display text-light-primary mb-6">Результаты поиска</h2>
                      {searchResults.length > 0 ? (
@@ -164,20 +224,18 @@ const PromptLibraryPage: React.FC = () => {
                      )}
                 </div>
             ) : selectedSubCategory ? (
-                 // Prompts View
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {selectedSubCategory.prompts.map((prompt, index) => (
                         <PromptCard 
                             key={prompt.id || index} 
                             item={prompt}
-                            isCustom={!!prompt.id}
+                            isCustom={selectedCategory?.name === 'Мои Промпты'}
                             onEdit={handleOpenEditModal}
                             onDelete={handleDeletePrompt}
                         />
                     ))}
                 </div>
             ) : selectedCategory ? (
-                // SubCategory View
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {selectedCategory.subCategories.map((sub, index) => (
                         <button
@@ -191,9 +249,8 @@ const PromptLibraryPage: React.FC = () => {
                     ))}
                 </div>
             ) : (
-                // Main Category View
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {library.map((cat, index) => (
+                    {filteredLibrary.map((cat, index) => (
                          <button
                             key={index}
                             onClick={() => setSelectedCategory(cat)}
@@ -206,6 +263,11 @@ const PromptLibraryPage: React.FC = () => {
                             <p className="text-sm text-light-secondary flex-grow">{cat.description}</p>
                         </button>
                     ))}
+                    {filteredLibrary.length === 0 && activeFilter !== 'All' && (
+                        <div className="col-span-full text-center py-8">
+                             <p className="text-light-secondary">Категория "{activeFilter}" не найдена.</p>
+                        </div>
+                    )}
                 </div>
             )}
 

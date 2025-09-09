@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import SettingsPanel from '../SettingsPanel';
 import PromptDisplay from '../PromptDisplay';
@@ -206,7 +207,11 @@ const GeneratorPage: React.FC<GeneratorPageProps> = ({ onNavigate, balance, onBa
             </p>
             {error && <div className="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-lg text-center">{error}</div>}
         </div>
-        <ImageGallery images={generatedImages} isGenerating={isGenerating} />
+        <ImageGallery 
+          images={generatedImages} 
+          isGenerating={isGenerating} 
+          generatingCount={settings.imageCount}
+        />
       </div>
     </div>
   );

@@ -72,6 +72,7 @@ export const CHAT_HISTORY_KEY = 'chat_history';
 export const GENERATOR_SETTINGS_KEY = 'generator_settings';
 export const CUSTOM_PROMPTS_KEY = 'custom_prompts';
 export const USER_BALANCE_KEY = 'user_balance';
+export const GOOGLE_API_KEY_KEY = 'google_api_key';
 
 // Balance and Costs
 export const DEFAULT_BALANCE = 100;

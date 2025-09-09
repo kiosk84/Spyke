@@ -15,12 +15,13 @@ import LandingPage from './components/pages/LandingPage';
 import TimeMachinePage from './components/pages/TimeMachinePage';
 import UserPage from './components/pages/UserPage';
 import PromptLibraryPage from './components/pages/PromptLibraryPage';
-import { USER_BALANCE_KEY, DEFAULT_BALANCE } from './constants';
+import { USER_BALANCE_KEY, DEFAULT_BALANCE, GOOGLE_API_KEY_KEY } from './constants';
 
 const App: React.FC = () => {
   const [isAppLoading, setIsAppLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const { tg, user } = useTelegram();
+  const [isApiKeySet, setIsApiKeySet] = useState<boolean>(() => !!localStorage.getItem(GOOGLE_API_KEY_KEY));
 
   const [balance, setBalance] = useState<number>(() => {
     const savedBalance = localStorage.getItem(USER_BALANCE_KEY);
@@ -38,6 +39,10 @@ const App: React.FC = () => {
       localStorage.setItem(USER_BALANCE_KEY, String(updatedBalance));
       return updatedBalance;
     });
+  }, []);
+
+  const handleApiKeyUpdate = useCallback(() => {
+    setIsApiKeySet(!!localStorage.getItem(GOOGLE_API_KEY_KEY));
   }, []);
 
 
@@ -63,7 +68,7 @@ const App: React.FC = () => {
   const renderPage = () => {
     switch (currentPage) {
       case 'landing':
-        return <LandingPage onNavigate={handleNavigate} />;
+        return <LandingPage onNavigate={handleNavigate} isApiKeySet={isApiKeySet} />;
       case 'chat':
         return <ChatPage onNavigate={handleNavigate} />;
       case 'info':
@@ -81,9 +86,9 @@ const App: React.FC = () => {
       case 'settings':
         return <SettingsPage />;
       case 'user':
-        return <UserPage onBalanceReset={() => handleBalanceChange(DEFAULT_BALANCE)} />;
+        return <UserPage onBalanceReset={() => handleBalanceChange(DEFAULT_BALANCE)} onApiKeyUpdate={handleApiKeyUpdate} />;
       default:
-        return <LandingPage onNavigate={handleNavigate} />;
+        return <LandingPage onNavigate={handleNavigate} isApiKeySet={isApiKeySet} />;
     }
   };
 

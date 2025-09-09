@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { Page } from '../../types';
 import RobotIcon from '../icons/RobotIcon';
@@ -8,9 +5,11 @@ import ImageIcon from '../icons/ImageIcon';
 import MagicWandIcon from '../icons/MagicWandIcon';
 import ClockIcon from '../icons/ClockIcon';
 import BookOpenIcon from '../icons/BookOpenIcon';
+import KeyIcon from '../icons/KeyIcon';
 
 interface LandingPageProps {
   onNavigate: (page: Page) => void;
+  isApiKeySet: boolean;
 }
 
 const FeatureCard: React.FC<{
@@ -32,9 +31,24 @@ const FeatureCard: React.FC<{
   </button>
 );
 
-const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onNavigate, isApiKeySet }) => {
   return (
-    <div className="text-center animate-fade-in p-4">
+    <div className="text-center animate-fade-in p-4 w-full">
+        {!isApiKeySet && (
+        <div className="bg-yellow-900/50 border border-yellow-500 text-yellow-300 p-4 rounded-lg text-center mb-8 max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4">
+            <KeyIcon className="w-8 h-8 flex-shrink-0" />
+            <div className="text-left">
+                <h3 className="font-bold">Требуется API-ключ Google</h3>
+                <p className="text-sm text-yellow-400/80">Для использования функций генерации и чата необходимо добавить ваш собственный API-ключ на странице пользователя.</p>
+            </div>
+          <button
+            onClick={() => onNavigate('user')}
+            className="bg-yellow-500 text-dark-primary font-bold py-2 px-4 rounded-lg hover:bg-yellow-400 transition-colors w-full sm:w-auto flex-shrink-0"
+          >
+            Добавить ключ
+          </button>
+        </div>
+      )}
       <h1 className="text-5xl md:text-6xl font-black font-display tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-brand-cyan to-brand-magenta mb-4">
         AI EXPERT
       </h1>
