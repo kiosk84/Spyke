@@ -62,7 +62,7 @@ const PROMPTS_BY_DECADE: Record<string, { initial: string; regen: string }> = {
         regen: "An 80s rock album cover. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 80s album cover art, dramatic colored spotlights, smoke machine effect, moody high-contrast colors, film grain, leather jacket, ripped jeans, wild rock star hairstyle, iconic, high resolution, professional."
     },
     '1990s': {
-        initial: "A 1990s grunge photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: grainy 35mm film photo, muted desaturated colors, slightly underexposed, natural overcast day lighting, flannel shirt, band t-shirt, ripped jeans, messy unkempt hairstyle, authentic, raw, realistic.",
+        initial: "A photograph in the style of the early 1990s music scene. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: grainy 35mm film photo, muted desaturated colors, slightly underexposed, natural overcast day lighting, a layered look with a flannel shirt over a t-shirt, distressed denim jeans, a relaxed and natural hairstyle, authentic, realistic.",
         regen: "A 90s pop style photograph. IMPORTANT: The person's face, gender, and all facial features must remain identical to the original photo. Style details: 90s teen magazine style, clean vibrant saturated colors, bright even studio lighting, simple pastel-colored studio backdrop, colorful windbreaker, high-waisted jeans, high ponytail with scrunchie, sharp, high quality."
     },
     '2000s': {

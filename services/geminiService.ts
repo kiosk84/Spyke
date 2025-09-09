@@ -178,7 +178,7 @@ export const editImage = async (
             if (textResponse) {
                 throw new Error(`Модель не вернула изображение, а ответила текстом: "${textResponse}"`);
             }
-            throw new Error('Не удалось отредактировать изображение. Модель вернула пустой ответ.');
+            throw new Error('Модель вернула пустой ответ. Это может быть связано с политикой безопасности.');
         }
 
         return images;
